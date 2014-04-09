@@ -17,20 +17,33 @@
   <canvas id="barycentric-canvas"></canvas>
 
   <div class="coordinates-container">
-    <div class="coordinates vertex">
-      <span class="coordinate x">0</span>
-      <span class="coordinate y">0</span>
+    <label for="vertex">vertex:</label>
+    <div class="coordinates vertex" id="vertex">
+      (
+      <span class="coordinate" id="x" data-coordinate="x">0</span>
+      ,
+      <span class="coordinate" id="y" data-coordinate="y">0</span>
+      )
     </div>
 
-    <div class="coordinates barycentric">
-      <span class="coordinate u">0</span>
-      <span class="coordinate v">0</span>
-      <span class="coordinate w">0</span>
+    <label for="barycentric">barycentric:</label>
+    <div class="coordinates barycentric" id="barycentric">
+      (
+      <span class="coordinate" id="u" data-coordinate="u">0</span>
+      ,
+      <span class="coordinate" id="v" data-coordinate="v">0</span>
+      ,
+      <span class="coordinate" id="w" data-coordinate="w">0</span>
+      )
     </div>
 
-    <div class="coordinates transform">
-      <span class="coordinate xt">0</span>
-      <span class="coordinate yt">0</span>
+    <label for="transform">transform:</label>
+    <div class="coordinates transform" id="transform">
+      (
+      <span class="coordinate" id="xt" data-coordinate="x">0</span>
+      ,
+      <span class="coordinate" id="yt" data-coordinate="y">0</span>
+      )
     </div>
   </div>
 

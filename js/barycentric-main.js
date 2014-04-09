@@ -31,28 +31,77 @@
   // Point on tri1.
   var p1 = { x: 0, y: 0 };
 
+  /**
+   * Updates DOM coordinates element with corresponding key/values.
+   *
+   * For example:
+   *   updateDOM({ point: { x: 32, y: 16 }});
+   *
+   * Will update (Jade template):
+   *
+   *  .point
+   *    .coordinate(data-coordinate='x') -> 32
+   *    .coordinate(data-coordinate='y') -> 16
+   */
   var updateDOM = (function() {
-    var vertexEls = [].slice.call( document.querySelectorAll( '.vertex .coordinate ') );
-    var barycentricEls = [].slice.call( document.querySelectorAll( '.barycentric .coordinate ') );
-    var transformEls = [].slice.call( document.querySelectorAll( '.transform .coordinate ') );
+    // Returns an array of all element matching selector.
+    function $$( selector ) {
+      return [].slice.call( document.querySelectorAll( selector ) );
+    }
 
-    return function( vertex, barycentric, transform ) {
-      vertexEls[0].textContent = vertex.x.toFixed(2);
-      vertexEls[1].textContent = vertex.y.toFixed(2);
+    // Converts an array of elements to an object with
+    // element cooordinate attributes as keys.
+    function byCoordinateAttr( object, el ) {
+      object[ el.getAttribute( 'data-coordinate' ) ] = el;
+      return object;
+    }
 
-      barycentricEls[0].textContent = barycentric.u.toFixed(2);
-      barycentricEls[1].textContent = barycentric.v.toFixed(2);
-      barycentricEls[2].textContent = barycentric.w.toFixed(2);
+    // Object of coordinate elements.
+    var els = {
+      vertex: null,
+      barycentric: null,
+      transform: null
+    };
 
-      transformEls[0].textContent = transform.x.toFixed(2);
-      transformEls[1].textContent = transform.y.toFixed(2);
+    function elOf( key, axis ) {
+      if ( els[ key ] ) {
+        return els[ key ][ axis ];
+      }
+    }
+
+    // Get elements by coordinate attribute.
+    Object.keys( els ).forEach(function( key ) {
+      els[ key ] = $$( '.' + key + ' .coordinate' ).reduce( byCoordinateAttr, {} );
+    });
+
+    return function() {
+      var arg = arguments[0];
+      if ( typeof arg !== 'object' ) {
+        return;
+      }
+
+      Object.keys( arg ).forEach(function( key ) {
+        var coordinates = arg[ key ];
+
+        Object.keys( coordinates ).forEach(function( axis ) {
+          var el = elOf( key, axis );
+          if ( el ) {
+            el.textContent = coordinates[ axis ].toFixed(2);
+          }
+        });
+      });
     };
   }) ();
 
   function update() {
     var point = Barycentric.convert2d.apply( null, [ mouse.x, mouse.y ].concat( tri0 ) );
     p1 = Barycentric.interpolate2d.apply( null, [ point.u, point.v, point.w ].concat( tri1 ) );
-    updateDOM( mouse, point, p1 );
+
+    updateDOM({
+      vertex: mouse,
+      barycentric: point,
+      transform: p1
+    });
   }
 
   function drawVertices( ctx, vertices ) {

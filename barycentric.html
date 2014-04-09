@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Barycentric Coordinates</title>
+
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="barycentric-canvas"></canvas>
+
+  <div class="coordinates-container">
+    <div class="coordinates vertex">
+      <span class="coordinate x">0</span>
+      <span class="coordinate y">0</span>
+      <span class="coordinate z">0</span>
+    </div>
+
+    <div class="coordinates barycentric">
+      <span class="coordinate u">0</span>
+      <span class="coordinate v">0</span>
+      <span class="coordinate w">0</span>
+    </div>
+
+    <div class="coordinates transform">
+      <span class="coordinate xt">0</span>
+      <span class="coordinate yt">0</span>
+      <span class="coordinate zt">0</span>
+    </div>
+  </div>
+
+  <script src="./js/barycentric.js"></script>
+  <script src="./js/barycentric-main.js"></script>
+</body>
+</html>

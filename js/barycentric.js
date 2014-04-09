@@ -2,6 +2,19 @@
 var Barycentric = (function() {
   'use strict';
 
+  function convert2d( x, y, x0, y0, x1, y1, x2, y2 ) {
+    var denom = ( y1 - y2 ) * ( x0 - x2 ) + ( x2 - x1 ) * ( y0 - y2 );
+
+    var u = ( ( y1 - y2 ) * ( x - x2 ) + ( x2 - x1 ) * ( y - y2 ) ) / denom,
+        v = ( ( y2 - y0 ) * ( x - x2 ) + ( x0 - x2 ) * ( y - y2 ) ) / denom;
+
+    return {
+      u: u,
+      v: v,
+      w: 1 - u - v
+    };
+  }
+
   /**
    * Converts a point to barycentric coordinates.
    *
@@ -23,7 +36,7 @@ var Barycentric = (function() {
    *     u = 1.0f - v - w;
    *   }
    */
-  function convert( x, y, z, x0, y0, z0, x1, y1, z1, x2, y2, z2 ) {
+  function convert3d( x, y, z, x0, y0, z0, x1, y1, z1, x2, y2, z2 ) {
     var v0x = x1 - x0,
         v0y = y1 - y0,
         v0z = z1 - z0;
@@ -58,7 +71,14 @@ var Barycentric = (function() {
   /**
    * Interpolate barycentric coordinates along a triangle.
    */
-  function interpolate( u, v, w, x0, y0, z0, x1, y1, z1, x2, y2, z2 ) {
+  function interpolate2d( u, v, w, x0, y0, x1, y1, x2, y2 ) {
+    return {
+      x: u * x0 + v * x1 + w * x2,
+      y: u * y0 + v * y1 + w * y2
+    };
+  }
+
+  function interpolate3d( u, v, w, x0, y0, z0, x1, y1, z1, x2, y2, z2 ) {
     return {
       x: u * x0 + v * x1 + w * x2,
       y: u * y0 + v * y1 + w * y2,
@@ -67,7 +87,9 @@ var Barycentric = (function() {
   }
 
   return {
-    convert: convert,
-    interpolate: interpolate
+    convert2d: convert2d,
+    convert3d: convert3d,
+    interpolate2d: interpolate2d,
+    interpolate3d: interpolate3d
   };
 }) ();

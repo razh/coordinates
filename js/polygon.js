@@ -30,7 +30,7 @@ var Polygon = (function() {
     }
 
     ctx.moveTo( vertices[0], vertices[1] );
-    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+    for ( var i = 1, il = 0.5 * vertices.length; i < il; i++ ) {
       ctx.lineTo( vertices[ 2 * i ], vertices[2 * i + 1 ] );
     }
   };

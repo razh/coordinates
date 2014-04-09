@@ -104,19 +104,28 @@
     });
   }
 
-  function drawVertices( ctx, vertices ) {
+  function drawPolygon( ctx, vertices ) {
     if ( vertices.length < 2 ) {
       return;
     }
 
-    ctx.beginPath();
-
     ctx.moveTo( vertices[0], vertices[1] );
-    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+    for ( var i = 1, il = 0.5 * vertices.length; i < il; i++ ) {
       ctx.lineTo( vertices[ 2 * i ], vertices[ 2 * i + 1 ] );
     }
 
     ctx.closePath();
+  }
+
+  function drawVertices( ctx, vertices, radius ) {
+    var x, y;
+    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+      x = vertices[ 2 * i ];
+      y = vertices[ 2 * i + 1 ];
+
+      ctx.moveTo( x, y );
+      ctx.arc( x, y, radius, 0, PI2 );
+    }
   }
 
   function draw( ctx ) {
@@ -125,11 +134,16 @@
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#fff';
 
-    drawVertices( ctx, tri0 );
+    ctx.beginPath();
+    drawPolygon( ctx, tri0 );
+    drawPolygon( ctx, tri1 );
     ctx.stroke();
 
-    drawVertices( ctx, tri1 );
-    ctx.stroke();
+    ctx.beginPath();
+    drawVertices( ctx, tri0, 4 );
+    drawVertices( ctx, tri1, 4 );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fill();
 
     ctx.beginPath();
     ctx.arc( mouse.x, mouse.y, 4, 0, PI2 );

@@ -2,6 +2,11 @@
 var Barycentric = (function() {
   'use strict';
 
+  /**
+   * Converts a point to barycentric coordinates.
+   *
+   * From http://en.wikipedia.org/wiki/Barycentric_coordinate_system.
+   */
   function convert2d( x, y, x0, y0, x1, y1, x2, y2 ) {
     var denom = ( y1 - y2 ) * ( x0 - x2 ) + ( x2 - x1 ) * ( y0 - y2 );
 
@@ -16,8 +21,6 @@ var Barycentric = (function() {
   }
 
   /**
-   * Converts a point to barycentric coordinates.
-   *
    * Converted from Christer Ericson's Real-Time Collision Detection:
    *
    *   // Compute barycentric coordinates (u, v, w) for
@@ -58,11 +61,10 @@ var Barycentric = (function() {
     var denom = d00 * d11 - d01 * d01;
 
     var v = ( d11 * d20 - d01 * d21 ) / denom,
-        w = ( d00 * d21 - d01 * d20 ) / denom,
-        u = 1 - v - w;
+        w = ( d00 * d21 - d01 * d20 ) / denom;
 
     return {
-      u: u,
+      u: 1 - v - w,
       v: v,
       w: w
     };

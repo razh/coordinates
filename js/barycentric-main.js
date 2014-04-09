@@ -23,7 +23,7 @@
     draw( context );
   }
 
-  var tri0 = [ 50, 200, 300, 200, 250, 50 ];
+  var tri0 = [ 50, 50, 300, 200, 250, 50 ];
 
   // Approximate equilateral triangle.
   var tri1 = [ 100, 500, 308, 500, 204, 320 ];
@@ -31,9 +31,28 @@
   // Point on tri1.
   var p1 = { x: 0, y: 0 };
 
+  var updateDOM = (function() {
+    var vertexEls = [].slice.call( document.querySelectorAll( '.vertex .coordinate ') );
+    var barycentricEls = [].slice.call( document.querySelectorAll( '.barycentric .coordinate ') );
+    var transformEls = [].slice.call( document.querySelectorAll( '.transform .coordinate ') );
+
+    return function( vertex, barycentric, transform ) {
+      vertexEls[0].textContent = vertex.x.toFixed(2);
+      vertexEls[1].textContent = vertex.y.toFixed(2);
+
+      barycentricEls[0].textContent = barycentric.u.toFixed(2);
+      barycentricEls[1].textContent = barycentric.v.toFixed(2);
+      barycentricEls[2].textContent = barycentric.w.toFixed(2);
+
+      transformEls[0].textContent = transform.x.toFixed(2);
+      transformEls[1].textContent = transform.y.toFixed(2);
+    };
+  }) ();
+
   function update() {
     var point = Barycentric.convert2d.apply( null, [ mouse.x, mouse.y ].concat( tri0 ) );
     p1 = Barycentric.interpolate2d.apply( null, [ point.u, point.v, point.w ].concat( tri1 ) );
+    updateDOM( mouse, point, p1 );
   }
 
   function drawVertices( ctx, vertices ) {

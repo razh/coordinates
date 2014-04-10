@@ -35,7 +35,7 @@
   var tri0 = [ 50, 50, 300, 200, 250, 50 ];
 
   // Approximate equilateral triangle.
-  var tri1 = [ 100, 500, 308, 500, 204, 320 ];
+  var tri1 = [ 100, 480, 308, 480, 204, 300 ];
 
   // Point on tri1.
   var p1 = { x: 0, y: 0 };
@@ -143,6 +143,36 @@
     }
   }
 
+  function drawTriangleVertexLabels( ctx, triangle, offset ) {
+    var centroid = computeCentroidTriangle( triangle );
+
+    // Start at 'A'.
+    var character = 65;
+
+    var x, y;
+    var dx, dy;
+    var angle;
+    for ( var i = 0, il = 0.5 * triangle.length; i < il; i++ ) {
+      x = triangle[ 2 * i ];
+      y = triangle[ 2 * i + 1 ];
+
+      dx = x - centroid.x;
+      dy = y - centroid.y;
+
+      // Offset test by angle.
+      angle = Math.atan2( dy, dx );
+      x += Math.cos( angle ) * offset;
+      y += Math.sin( angle ) * offset;
+
+      // Set alignment and baseline such that the character is
+      // drawn away from the centroid.
+      ctx.textAlign = dx > 0 ? 'left' : 'right';
+      ctx.textBaseline = dy > 0 ? 'top' : 'bottom';
+
+      ctx.fillText( String.fromCharCode( character + i ), x, y );
+    }
+  }
+
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 
@@ -169,6 +199,11 @@
     ctx.arc( p1.x, p1.y, 4, 0, PI2 );
     ctx.fillStyle = '#f43';
     ctx.fill();
+
+    ctx.font = 'italic 16pt Georgia';
+    ctx.fillStyle = '#fff';
+    drawTriangleVertexLabels( ctx, tri0, 8 );
+    drawTriangleVertexLabels( ctx, tri1, 8 );
   }
 
   draw( context );

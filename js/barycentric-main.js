@@ -23,6 +23,15 @@
     draw( context );
   }
 
+  // Barycentric helper functions.
+  function baryConvert2d( x, y, triangle ) {
+    return Barycentric.convert2d.apply( null, [ x, y ].concat( triangle ) );
+  }
+
+  function baryInterp2d( u, v, w, triangle ) {
+    return Barycentric.interpolate2d.apply( null, [ u, v, w ].concat( triangle ) );
+  }
+
   var tri0 = [ 50, 50, 300, 200, 250, 50 ];
 
   // Approximate equilateral triangle.
@@ -94,8 +103,8 @@
   }) ();
 
   function update() {
-    var point = Barycentric.convert2d.apply( null, [ mouse.x, mouse.y ].concat( tri0 ) );
-    p1 = Barycentric.interpolate2d.apply( null, [ point.u, point.v, point.w ].concat( tri1 ) );
+    var point = baryConvert2d( mouse.x, mouse.y, tri0 );
+    p1 = baryInterp2d( point.u, point.v, point.w, tri1 );
 
     updateDOM({
       vertex: mouse,
@@ -107,7 +116,7 @@
   // Computes the centroid of a triangle.
   function computeCentroidTriangle( triangle ) {
     var third = 1 / 3;
-    return Barycentric.interpolate2d.apply( null, [ third, third, third ].concat( triangle ) );
+    return baryInterp2d( third, third, third, triangle );
   }
 
   function drawPolygon( ctx, vertices ) {

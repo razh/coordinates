@@ -104,6 +104,12 @@
     });
   }
 
+  // Computes the centroid of a triangle.
+  function computeCentroidTriangle( triangle ) {
+    var third = 1 / 3;
+    return Barycentric.interpolate2d.apply( null, [ third, third, third ].concat( triangle ) );
+  }
+
   function drawPolygon( ctx, vertices ) {
     if ( vertices.length < 2 ) {
       return;

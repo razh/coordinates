@@ -166,8 +166,8 @@
 
       // Set alignment and baseline such that the character is
       // drawn away from the centroid.
-      ctx.textAlign = dx > 0 ? 'left' : 'right';
-      ctx.textBaseline = dy > 0 ? 'top' : 'bottom';
+      ctx.textAlign = dx ? ( dx > 0 ? 'left' : 'right' ) : 'center';
+      ctx.textBaseline = dy ? ( dy > 0 ? 'top' : 'bottom' ) : 'middle';
 
       ctx.fillText( String.fromCharCode( character + i ), x, y );
     }

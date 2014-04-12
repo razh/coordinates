@@ -80,8 +80,27 @@ var MeanValue = (function() {
     return weights;
   }
 
-  function interpolate2d() {
+  /**
+   * Interpolates mean-value coordinate weights along vertices.
+   */
+  function interpolate2d( weights, vertices ) {
+    var vertexCount = 0.5 * vertices.length;
+    if ( vertexCount > weights.length ) {
+      return;
+    }
 
+    var x = 0,
+        y = 0;
+
+    for ( var i = 0; i < vertexCount; i++ ) {
+      x += weights[i] * vertexCount[ 2 * i ];
+      y += weights[i] * vertexCount[ 2 * i + 1 ];
+    }
+
+    return {
+      x: x,
+      y: y
+    };
   }
 
   return {

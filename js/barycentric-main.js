@@ -119,6 +119,17 @@
     return baryInterp2d( third, third, third, triangle );
   }
 
+  function computeCentroid( vertices ) {
+    if ( 0.5 * vertices.length === 3 ) {
+      return computeCentroidTriangle( vertices );
+    }
+
+    return {
+      x: 0,
+      y: 0
+    };
+  }
+
   function drawPolygon( ctx, vertices ) {
     if ( vertices.length < 2 ) {
       return;
@@ -143,8 +154,8 @@
     }
   }
 
-  function drawTriangleVertexLabels( ctx, triangle, offset ) {
-    var centroid = computeCentroidTriangle( triangle );
+  function drawVertexLabels( ctx, vertices, offset ) {
+    var centroid = computeCentroid( vertices );
 
     // Start at 'A'.
     var character = 65;
@@ -152,9 +163,9 @@
     var x, y;
     var dx, dy;
     var angle;
-    for ( var i = 0, il = 0.5 * triangle.length; i < il; i++ ) {
-      x = triangle[ 2 * i ];
-      y = triangle[ 2 * i + 1 ];
+    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+      x = vertices[ 2 * i ];
+      y = vertices[ 2 * i + 1 ];
 
       dx = x - centroid.x;
       dy = y - centroid.y;
@@ -202,8 +213,8 @@
 
     ctx.font = 'italic 16pt Georgia';
     ctx.fillStyle = '#fff';
-    drawTriangleVertexLabels( ctx, tri0, 8 );
-    drawTriangleVertexLabels( ctx, tri1, 8 );
+    drawVertexLabels( ctx, tri0, 8 );
+    drawVertexLabels( ctx, tri1, 8 );
   }
 
   draw( context );

@@ -9,6 +9,19 @@ var Geometry = (function() {
     return Math.abs( value ) < EPSILON;
   }
 
+  function createRegularPolygon( sides ) {
+    var angle = -PI2 / sides;
+
+    var vertices = [];
+
+    for ( var i = 0; i < sides; i++ ) {
+      vertices.push( Math.cos( i * angle ) );
+      vertices.push( Math.sin( i * angle ) );
+    }
+
+    return vertices;
+  }
+
   function computeCentroid( vertices ) {
     var vertexCount = 0.5 * vertices.length;
 
@@ -107,6 +120,8 @@ var Geometry = (function() {
 
   return {
     nearZero: nearZero,
+
+    createRegularPolygon: createRegularPolygon,
 
     computeCentroid: computeCentroid,
 

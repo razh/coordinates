@@ -3,6 +3,11 @@ var Geometry = (function() {
   'use strict';
 
   var PI2 = 2 * Math.PI;
+  var EPSILON = 1e-5;
+
+  function nearZero( value ) {
+    return Math.abs( value ) < EPSILON;
+  }
 
   function computeCentroid( vertices ) {
     var vertexCount = 0.5 * vertices.length;
@@ -93,15 +98,18 @@ var Geometry = (function() {
 
       // Set alignment and baseline such that the character is
       // drawn away from the centroid.
-      ctx.textAlign = dx ? ( dx > 0 ? 'left' : 'right' ) : 'center';
-      ctx.textBaseline = dy ? ( dy > 0 ? 'top' : 'bottom' ) : 'middle';
+      ctx.textAlign = nearZero( dx ) ? 'center' : ( dx > 0 ? 'left' : 'right' );
+      ctx.textBaseline = nearZero( dy ) ? 'middle' : ( dy > 0 ? 'top' : 'bottom' );
 
       ctx.fillText( String.fromCharCode( character + i ), x, y );
     }
   }
 
   return {
+    nearZero: nearZero,
+
     computeCentroid: computeCentroid,
+
     drawPolygon: drawPolygon,
     drawVertices: drawVertices,
     drawVertexLabels: drawVertexLabels

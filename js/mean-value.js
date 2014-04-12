@@ -29,8 +29,8 @@ var MeanValue = (function() {
     // Note that (x1, y1) and a1 represent the current vertex and angle.
     var x0, y0, x1, y1, x2, y2;
     var dx0, dy0, dx1, dy1, dx2, dy2;
-    var d0, d1, d2;
     var a0, a1;
+    var distance;
     var weight;
     var i;
     for ( i = 0; i < vertexCount; i++ ) {
@@ -54,22 +54,10 @@ var MeanValue = (function() {
       dx2 = x2 - x;
       dy2 = y2 - y;
 
-      // Calculate distances.
-      d0 = Math.sqrt( dx0 * dx0 + dy0 + dy0 );
-      d1 = Math.sqrt( dx1 * dx1 + dy1 + dy1 );
-      d2 = Math.sqrt( dx2 * dx2 + dy2 + dy2 );
+      a0 = Math.atan2( dy1, dx1 ) - Math.atan2( dy0, dx0 );
+      a1 = Math.atan2( dy2, dx1 ) - Math.atan2( dy1, dx1 );
 
-      /**
-       * The dot product: A . B = |A| * |B| * cos(theta).
-       *
-       * Which gives us:
-       *
-       *                   A . B
-       *  theta = arccos ---------
-       *                 |A| * |B|
-       */
-      a0 = Math.acos( ( dx0 * dx1 + dy0 * dy1 ) / ( d0 * d1 ) );
-      a1 = Math.acos( ( dx1 * dx2 + dy1 * dy2 ) / ( d1 * d2 ) );
+      distance = Math.sqrt( dx1 * dx1 + dy1 * dy1 );
 
       /**
        * Calculate weight:
@@ -78,7 +66,7 @@ var MeanValue = (function() {
        * weight = --------------------------------
        *                   || ai - a1 ||
        */
-      weight = ( Math.tan( 0.5 * a0 ) + Math.tan( 0.5 * a1 ) ) / d1;
+      weight = ( Math.tan( 0.5 * a0 ) + Math.tan( 0.5 * a1 ) ) / distance;
       sum += weight;
     }
 

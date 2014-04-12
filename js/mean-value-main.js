@@ -23,10 +23,52 @@
     draw( context );
   }
 
+  // Polygons.
+  // A octagon pretending to be a square.
+  var octSquare = [
+    100, 50, 100, 100,
+    100, 150, 150, 150,
+    200, 150, 200, 100,
+    200, 50, 150, 50
+  ];
+
+  // A regular octagon.
+  var octagon = Geometry.createRegularPolygon(8);
+  // Transform octagon.
+  (function() {
+    var tx = 150,
+        ty = 300,
+        scale = 65;
+
+    for ( var i = 0, il = 0.5 * octagon.length; i < il; i++ ) {
+      octagon[ 2 * i     ] = tx + scale * octagon [ 2 * i    ];
+      octagon[ 2 * i + 1 ] = ty + scale * octagon [ 2 * i + 1 ];
+    }
+  }) ();
+
   function update() {}
 
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#fff';
+
+    ctx.beginPath();
+    Geometry.drawPolygon( ctx, octSquare );
+    Geometry.drawPolygon( ctx, octagon );
+    ctx.stroke();
+
+    ctx.beginPath();
+    Geometry.drawVertices( ctx, octSquare, 4 );
+    Geometry.drawVertices( ctx, octagon, 4 );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fill();
+
+    ctx.font = 'italic 16pt Georgia';
+    ctx.fillStyle = '#fff';
+    Geometry.drawVertexLabels( ctx, octSquare, 8 );
+    Geometry.drawVertexLabels( ctx, octagon, 8 );
   }
 
   draw( context );

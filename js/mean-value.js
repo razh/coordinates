@@ -55,7 +55,7 @@ var MeanValue = (function() {
       dy2 = y2 - y;
 
       a0 = Math.atan2( dy1, dx1 ) - Math.atan2( dy0, dx0 );
-      a1 = Math.atan2( dy2, dx1 ) - Math.atan2( dy1, dx1 );
+      a1 = Math.atan2( dy2, dx2 ) - Math.atan2( dy1, dx1 );
 
       distance = Math.sqrt( dx1 * dx1 + dy1 * dy1 );
 
@@ -67,6 +67,7 @@ var MeanValue = (function() {
        *                   || ai - a1 ||
        */
       weight = ( Math.tan( 0.5 * a0 ) + Math.tan( 0.5 * a1 ) ) / distance;
+      weights.push( weight );
       sum += weight;
     }
 
@@ -93,8 +94,8 @@ var MeanValue = (function() {
         y = 0;
 
     for ( var i = 0; i < vertexCount; i++ ) {
-      x += weights[i] * vertexCount[ 2 * i ];
-      y += weights[i] * vertexCount[ 2 * i + 1 ];
+      x += weights[i] * vertices[ 2 * i ];
+      y += weights[i] * vertices[ 2 * i + 1 ];
     }
 
     return {

@@ -1,4 +1,4 @@
-/*globals Barycentric*/
+/*globals Geometry, Barycentric*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -113,77 +113,6 @@
     });
   }
 
-  // Computes the centroid of a triangle.
-  function computeCentroidTriangle( triangle ) {
-    var third = 1 / 3;
-    return baryInterp2d( third, third, third, triangle );
-  }
-
-  function computeCentroid( vertices ) {
-    if ( 0.5 * vertices.length === 3 ) {
-      return computeCentroidTriangle( vertices );
-    }
-
-    return {
-      x: 0,
-      y: 0
-    };
-  }
-
-  function drawPolygon( ctx, vertices ) {
-    if ( vertices.length < 2 ) {
-      return;
-    }
-
-    ctx.moveTo( vertices[0], vertices[1] );
-    for ( var i = 1, il = 0.5 * vertices.length; i < il; i++ ) {
-      ctx.lineTo( vertices[ 2 * i ], vertices[ 2 * i + 1 ] );
-    }
-
-    ctx.closePath();
-  }
-
-  function drawVertices( ctx, vertices, radius ) {
-    var x, y;
-    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
-      x = vertices[ 2 * i ];
-      y = vertices[ 2 * i + 1 ];
-
-      ctx.moveTo( x, y );
-      ctx.arc( x, y, radius, 0, PI2 );
-    }
-  }
-
-  function drawVertexLabels( ctx, vertices, offset ) {
-    var centroid = computeCentroid( vertices );
-
-    // Start at 'A'.
-    var character = 65;
-
-    var x, y;
-    var dx, dy;
-    var angle;
-    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
-      x = vertices[ 2 * i ];
-      y = vertices[ 2 * i + 1 ];
-
-      dx = x - centroid.x;
-      dy = y - centroid.y;
-
-      // Offset test by angle.
-      angle = Math.atan2( dy, dx );
-      x += Math.cos( angle ) * offset;
-      y += Math.sin( angle ) * offset;
-
-      // Set alignment and baseline such that the character is
-      // drawn away from the centroid.
-      ctx.textAlign = dx ? ( dx > 0 ? 'left' : 'right' ) : 'center';
-      ctx.textBaseline = dy ? ( dy > 0 ? 'top' : 'bottom' ) : 'middle';
-
-      ctx.fillText( String.fromCharCode( character + i ), x, y );
-    }
-  }
-
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 
@@ -191,13 +120,13 @@
     ctx.strokeStyle = '#fff';
 
     ctx.beginPath();
-    drawPolygon( ctx, tri0 );
-    drawPolygon( ctx, tri1 );
+    Geometry.drawPolygon( ctx, tri0 );
+    Geometry.drawPolygon( ctx, tri1 );
     ctx.stroke();
 
     ctx.beginPath();
-    drawVertices( ctx, tri0, 4 );
-    drawVertices( ctx, tri1, 4 );
+    Geometry.drawVertices( ctx, tri0, 4 );
+    Geometry.drawVertices( ctx, tri1, 4 );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.fill();
 
@@ -213,8 +142,8 @@
 
     ctx.font = 'italic 16pt Georgia';
     ctx.fillStyle = '#fff';
-    drawVertexLabels( ctx, tri0, 8 );
-    drawVertexLabels( ctx, tri1, 8 );
+    Geometry.drawVertexLabels( ctx, tri0, 8 );
+    Geometry.drawVertexLabels( ctx, tri1, 8 );
   }
 
   draw( context );

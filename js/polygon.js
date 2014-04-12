@@ -101,6 +101,24 @@ var Polygon = (function() {
     };
   };
 
+  Polygon.prototype.getWorldVertices = function() {
+    var vertices = this.vertices.slice();
+    var vertexCount = 0.5 * vertices.length;
+
+    var point;
+    var x, y;
+    for ( var i = 0; i < vertexCount; i++ ) {
+      x = vertices[ 2 * i ];
+      y = vertices[ 2 * i + 1 ];
+
+      point = this.toWorld( x, y );
+      vertices[ 2 * i ] = point.x;
+      vertices[ 2 * i + 1 ] = point.y;
+    }
+
+    return vertices;
+  };
+
   /**
    * Computes the centroid in local coordinates.
    */

@@ -5,6 +5,15 @@ var Geometry = (function() {
   var PI2 = 2 * Math.PI;
   var EPSILON = 1e-5;
 
+  function lerp( a, b, t ) {
+    return a + t * ( b - a );
+  }
+
+  function inverseLerp( a, b, value ) {
+    return ( value - a ) / ( b - a );
+  }
+
+
   function nearZero( value ) {
     return Math.abs( value ) < EPSILON;
   }
@@ -119,6 +128,9 @@ var Geometry = (function() {
   }
 
   return {
+    lerp: lerp,
+    inverseLerp: inverseLerp,
+
     nearZero: nearZero,
 
     createRegularPolygon: createRegularPolygon,

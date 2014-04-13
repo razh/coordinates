@@ -1,4 +1,4 @@
-/*globals Geometry, MeanValue*/
+/*globals Geometry, Polygon, MeanValue*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -11,6 +11,12 @@
   canvas.height = 512;
 
   var mouse = {
+    x: 0,
+    y: 0
+  };
+
+  // Transformed point.
+  var transform = {
     x: 0,
     y: 0
   };
@@ -33,20 +39,18 @@
   ];
 
   // A regular octagon.
-  var octagon = Geometry.createRegularPolygon(8);
+  var octagon = new Polygon();
+  octagon.vertices = Geometry.createRegularPolygon(8);
   // Transform octagon.
-  (function() {
-    var tx = 150,
-        ty = 300,
-        scale = 65;
+  octagon.x = 150;
+  octagon.y = 300;
+  octagon.scaleX = octagon.scaleY = 65;
+  octagon = octagon.getWorldVertices();
 
-    for ( var i = 0, il = 0.5 * octagon.length; i < il; i++ ) {
-      octagon[ 2 * i     ] = tx + scale * octagon [ 2 * i    ];
-      octagon[ 2 * i + 1 ] = ty + scale * octagon [ 2 * i + 1 ];
-    }
-  }) ();
-
-  function update() {}
+  function update() {
+    var weights = MeanValue.convert2d( mouse.x, mouse.y, octSquare );
+    transform = MeanValue.interpolate2d( weights, octagon );
+  }
 
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
@@ -69,6 +73,16 @@
     ctx.fillStyle = '#fff';
     Geometry.drawVertexLabels( ctx, octSquare, 8 );
     Geometry.drawVertexLabels( ctx, octagon, 8 );
+
+    ctx.beginPath();
+    ctx.arc( mouse.x, mouse.y, 4, 0, PI2 );
+    ctx.fillStyle = '#3f4';
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc( transform.x, transform.y, 4, 0, PI2 );
+    ctx.fillStyle = '#f43';
+    ctx.fill();
   }
 
   draw( context );

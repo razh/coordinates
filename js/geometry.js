@@ -13,6 +13,9 @@ var Geometry = (function() {
     return ( value - a ) / ( b - a );
   }
 
+  function clamp( value, min, max ) {
+    return Math.min( Math.max( value, min ), max );
+  }
 
   function nearZero( value ) {
     return Math.abs( value ) < EPSILON;
@@ -130,6 +133,7 @@ var Geometry = (function() {
   return {
     lerp: lerp,
     inverseLerp: inverseLerp,
+    clamp: clamp,
 
     nearZero: nearZero,
 

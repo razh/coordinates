@@ -71,9 +71,61 @@ var MeanValue = (function() {
       sum += weight;
     }
 
+    // If the sum of weights is infinite, then the point lies on either
+    // a vertex or an edge.
+    var il;
+    var i0, i1;
+    var indices;
+    var dx, dy;
+    if ( !isFinite( sum ) ) {
+      sum = 0;
+      indices = [];
+      // Convert all infinite weight values to one.
+      // All other values are zeroed.
+      for ( i = 0, il = weights.length; i < il; i++ ) {
+        if ( isFinite( weights[i] ) ) {
+          weights[i] = 0;
+        } else {
+          weights[i] = 1;
+          indices.push(i);
+          sum++;
+        }
+      }
+
+      // The point is on a vertex.
+      // No need to normalize weights.
+      if ( sum === 1 ) {
+        return weights;
+      }
+
+      // The points lies on an edge.
+      if ( sum === 2 ) {
+        i0 = indices[0];
+        i1 = indices[1];
+
+        x0 = vertices[ 2 * modulo( i0, vertexCount ) ];
+        y0 = vertices[ 2 * modulo( i0, vertexCount ) + 1 ];
+        x1 = vertices[ 2 * modulo( i1, vertexCount ) ];
+        y1 = vertices[ 2 * modulo( i1, vertexCount ) + 1 ];
+
+        dx1 = x1 - x;
+        dy1 = y1 - y;
+
+        dx = x1 - x0;
+        dy = y1 - y0;
+
+        // Determine the lerp parameter with the dot product.
+        weights[ i0 ] = ( dx1 * dx + dy1 * dy ) / ( dx * dx + dy * dy );
+        weights[ i1 ] = 1 - weights[ i0 ];
+
+        // As the combined weights must sum up to one, it is not necessary to
+        // normalize weights.
+        return weights;
+      }
+    }
+
     // Normalize weights.
     var sumInverse = 1 / sum;
-    var il;
     for ( i = 0, il = weights.length; i < il; i++ ) {
       weights[i] *= sumInverse;
     }

@@ -1,4 +1,4 @@
-/*globals Geometry, Barycentric*/
+/*globals Geometry, Grid, Barycentric*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -39,6 +39,16 @@
 
   // Point on tri1.
   var p1 = { x: 0, y: 0 };
+
+  var grid = new Grid({
+    width: 300,
+    height: 200,
+    cols: 25,
+    rows: 25
+  });
+
+  grid.x = 25;
+  grid.y = 25;
 
   /**
    * Updates DOM coordinates element with corresponding key/values.
@@ -144,6 +154,27 @@
     ctx.fillStyle = '#fff';
     Geometry.drawVertexLabels( ctx, tri0, 8 );
     Geometry.drawVertexLabels( ctx, tri1, 8 );
+
+    // Draw grid.
+    ctx.beginPath();
+    var worldVertices = grid.getWorldVertices();
+    Geometry.drawVertices( ctx, worldVertices, 2 );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.fill();
+
+    ctx.beginPath();
+    var x, y;
+    var a, b;
+    for ( var i = 0, il = 0.5 * worldVertices.length; i < il; i++ ) {
+      x = worldVertices[ 2 * i ];
+      y = worldVertices[ 2 * i + 1 ];
+      a = baryConvert2d( x, y, tri0 );
+      b = baryInterp2d( a.u, a.v, a.w, tri1 );
+      ctx.moveTo( b.x, b.y );
+      ctx.arc( b.x, b.y, 2, 0, PI2 );
+    }
+
+    ctx.fill();
   }
 
   draw( context );

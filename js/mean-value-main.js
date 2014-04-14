@@ -1,4 +1,4 @@
-/*globals Geometry, Polygon, MeanValue*/
+/*globals Geometry, Polygon, Grid, MeanValue*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -47,6 +47,16 @@
   octagon.scaleX = octagon.scaleY = 65;
   octagon = octagon.getWorldVertices();
 
+  var grid = new Grid({
+    width: 150,
+    height: 150,
+    cols: 15,
+    rows: 15
+  });
+
+  grid.x = 80;
+  grid.y = 30;
+
   function update() {
     var weights = MeanValue.convert2d( mouse.x, mouse.y, octSquare );
     transform = MeanValue.interpolate2d( weights, octagon );
@@ -82,6 +92,32 @@
     ctx.beginPath();
     ctx.arc( transform.x, transform.y, 4, 0, PI2 );
     ctx.fillStyle = '#f43';
+    ctx.fill();
+
+    // Draw grid.
+    ctx.beginPath();
+    var worldVertices = grid.getWorldVertices();
+    Geometry.drawVertices( ctx, worldVertices, 2 );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.fill();
+
+    ctx.beginPath();
+    var x, y;
+    var weights;
+    var p;
+    for ( var i = 0, il = 0.5 * worldVertices.length; i < il; i++ ) {
+      x = worldVertices[ 2 * i ];
+      y = worldVertices[ 2 * i + 1 ];
+      weights = MeanValue.convert2d( x, y, octSquare );
+      p = MeanValue.interpolate2d( weights, octagon );
+      if ( !p || !p.x || ! p.y ) {
+        console.log( 'Undefined vertex at index ' + i + '.' );
+      }
+
+      ctx.moveTo( p.x, p.y );
+      ctx.arc( p.x, p.y, 2, 0, PI2 );
+    }
+
     ctx.fill();
   }
 

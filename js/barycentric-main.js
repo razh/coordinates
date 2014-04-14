@@ -43,12 +43,12 @@
   var grid = new Grid({
     width: 300,
     height: 200,
-    cols: 25,
-    rows: 25
+    cols: 30,
+    rows: 20
   });
 
-  grid.x = 25;
-  grid.y = 25;
+  grid.x = 30;
+  grid.y = 30;
 
   /**
    * Updates DOM coordinates element with corresponding key/values.
@@ -159,7 +159,7 @@
     ctx.beginPath();
     var worldVertices = grid.getWorldVertices();
     Geometry.drawVertices( ctx, worldVertices, 2 );
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.fill();
 
     ctx.beginPath();
@@ -170,6 +170,10 @@
       y = worldVertices[ 2 * i + 1 ];
       a = baryConvert2d( x, y, tri0 );
       b = baryInterp2d( a.u, a.v, a.w, tri1 );
+      if ( !b || !b.x || ! b.y ) {
+        console.log( 'Undefined vertex at index ' + i + '.' );
+      }
+
       ctx.moveTo( b.x, b.y );
       ctx.arc( b.x, b.y, 2, 0, PI2 );
     }

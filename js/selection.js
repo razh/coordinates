@@ -87,7 +87,7 @@ var Selection = (function() {
   function onMouseMove( event ) {
     mousePosition( event );
 
-    selection.objects.forEach(function( object, index ) {
+    selection.array.forEach(function( object, index ) {
       object.x = mouse.x + selection.offsets[ index ].x;
       object.y = mouse.y + selection.offsets[ index ].y;
     });

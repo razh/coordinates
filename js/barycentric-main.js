@@ -1,4 +1,4 @@
-/*globals Geometry, Grid, Barycentric*/
+/*globals Geometry, Selection, Grid, Barycentric*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -183,5 +183,10 @@
 
   draw( context );
   canvas.addEventListener( 'mousemove', onMouseMove );
+
+  // Initialize selection interaction.
+  Selection.setElement( canvas );
+  Selection.addHandlers( tri0 );
+  Selection.addHandlers( tri1 );
 
 }) ( window, document );

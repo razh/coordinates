@@ -1,4 +1,4 @@
-/*globals Geometry, Polygon, Grid, MeanValue*/
+/*globals Geometry, Selection, Polygon, Grid, MeanValue*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -123,5 +123,10 @@
 
   draw( context );
   canvas.addEventListener( 'mousemove', onMouseMove );
+
+  // Initialize selection interaction.
+  Selection.setElement( canvas );
+  Selection.addHandlers( octSquare );
+  Selection.addHandlers( octagon );
 
 }) ( window, document );

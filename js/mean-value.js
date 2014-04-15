@@ -77,6 +77,7 @@ var MeanValue = (function() {
     var i0, i1;
     var indices;
     var dx, dy;
+    var distanceSquared;
     if ( !isFinite( sum ) ) {
       sum = 0;
       indices = [];
@@ -114,8 +115,17 @@ var MeanValue = (function() {
         dx = x1 - x0;
         dy = y1 - y0;
 
+        distanceSquared = dx * dx + dy * dy;
+
+        // Handle degenerate distances (two vertices have the same position).
+        if ( !distanceSquared ) {
+          weights[ i0 ] = 1;
+          weights[ i1 ] = 0;
+          return weights;
+        }
+
         // Determine the lerp parameter with the dot product.
-        weights[ i0 ] = ( dx1 * dx + dy1 * dy ) / ( dx * dx + dy * dy );
+        weights[ i0 ] = ( dx1 * dx + dy1 * dy ) / distanceSquared;
         weights[ i1 ] = 1 - weights[ i0 ];
 
         // As the combined weights must sum up to one, it is not necessary to

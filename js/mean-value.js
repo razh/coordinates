@@ -15,6 +15,79 @@ var MeanValue = (function() {
   }
 
   /**
+   * Implementation of the interpolation function from K. Hormann and
+   * M. S. Floater's Mean Value Coordinates for Arbitrary Planar Polygons.
+   */
+  function _convert2d( x, y, vertices ) {
+    var vertexCount = 0.5 * vertices.length;
+
+    var weights = new Array( vertexCount );
+    var i;
+    // Assign all zeros.
+    for ( i = 0; i < vertexCount; i++ ) {
+      weights[ i++ ] = 0;
+    }
+
+    /**
+     * Determine if (x, y) lies on a vertex or an edge.
+     *
+     * Subscripts:
+     *   0 - Previous vertex.
+     *   1 - Current vertex.
+     *   2 - Next vertex.
+     */
+    var x0, y0, x1, y1, x2, y2;
+    var dx0, dy0, dx1, dy1, dx2, dy2;
+    var r0, r1, r2;
+    /**
+     * Areas and dot products correspond to triangles:
+     *
+     * Subscripts:
+     *  0 - Triangle formed by (x, y), (x0, y0), and (x1, y1).
+     *  1 - Triangle formed by (x, y), (x1, y1), and (x2, y2).
+     */
+    var area0, area1;
+    var dot0, dot1;
+    for ( i = 0; i < vertexCount; i++ ) {
+      // Current vertex.
+      x1 = vertices[ 2 * i ];
+      y1 = vertices[ 2 * i + 1 ];
+      // Next vertex.
+      x2 = vertices[ 2 * ( ( i + 1 ) % vertexCount ) ];
+      y2 = vertices[ 2 * ( ( i + 1 ) % vertexCount ) + 1 ];
+
+      dx1 = x1 - x;
+      dy1 = y1 - y;
+
+      dx2 = x2 - x;
+      dy2 = y2 - y;
+
+      // Radii from (x, y).
+      r1 = Math.sqrt( dx1 * dx1 + dy1 * dy1 );
+      // (x, y) lies on (x1, y1).
+      if ( !r1 ) {
+        weights[i] = 1;
+        return weights;
+      }
+
+      area1 = 0.5 * ( dx1 * dy2 - dx2 * dy1 );
+      dot1 = ( dx1 * dx2 + dx1 * dx2 );
+
+      // (x, y) lies on the edge (x1, y1) - (x2, y2).
+      if ( !area1 && dot1 < 0 ) {
+        r2 = Math.sqrt( dx2 * dx2 + dy2 * dy2 );
+        weights[i] = r2 / ( r1 + r2 );
+        weights[ ( i + 1 ) % vertexCount ] = 1 - weights[i];
+        return weights;
+      }
+    }
+
+    /**
+     * Determine vertex weights.
+     */
+  }
+
+  /**
    * Converts (x, y) to a set of mean-value coordinate weights.
    *
    * Note that vertices should be arranged counter-clockwise or weights will be

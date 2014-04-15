@@ -170,8 +170,9 @@
       y = worldVertices[ 2 * i + 1 ];
       a = baryConvert2d( x, y, tri0 );
       b = baryInterp2d( a.u, a.v, a.w, tri1 );
-      if ( !b || !b.x || ! b.y ) {
+      if ( !b || !isFinite( b.x ) || !isFinite( b.y ) ) {
         console.log( 'Undefined vertex at index ' + i + '.' );
+        console.log( a );
       }
 
       ctx.moveTo( b.x, b.y );

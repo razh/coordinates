@@ -110,8 +110,9 @@
       y = worldVertices[ 2 * i + 1 ];
       weights = MeanValue.convert2d( x, y, octSquare );
       p = MeanValue.interpolate2d( weights, octagon );
-      if ( !p || !p.x || ! p.y ) {
+      if ( !p || !isFinite( p.x ) || !isFinite( p.y ) ) {
         console.log( 'Undefined vertex at index ' + i + '.' );
+        console.log( weights );
       }
 
       ctx.moveTo( p.x, p.y );

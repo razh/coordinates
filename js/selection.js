@@ -1,4 +1,4 @@
-/*globals Geometry*/
+/*globals Geometry, Handler*/
 /*exported Selection*/
 var Selection = (function() {
   'use strict';
@@ -32,6 +32,12 @@ var Selection = (function() {
     el.addEventListener( 'mousedown', onMouseDown );
     el.addEventListener( 'mousemove', onMouseMove );
     el.addEventListener( 'mouseup', onMouseUp );
+  };
+
+  selection.addHandlers = function( vertices ) {
+    for ( var i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+      selection.objects.push( new Handler( vertices, i ) );
+    }
   };
 
   var mouse = {

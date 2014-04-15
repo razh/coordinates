@@ -21,6 +21,17 @@ var Geometry = (function() {
     return Math.abs( value ) < EPSILON;
   }
 
+  function distanceSquared( x0, y0, x1, y1 ) {
+    var dx = x1 - x0,
+        dy = y1 - y0;
+
+    return dx * dx + dy * dy;
+  }
+
+  function distance( x0, y0, x1, y1 ) {
+    return Math.sqrt( distanceSquared( x0, y0, x1, y1 ) );
+  }
+
   function createRegularPolygon( sides ) {
     var angle = -PI2 / sides;
 
@@ -136,6 +147,9 @@ var Geometry = (function() {
     clamp: clamp,
 
     nearZero: nearZero,
+
+    distanceSquared: distanceSquared,
+    distance: distance,
 
     createRegularPolygon: createRegularPolygon,
 

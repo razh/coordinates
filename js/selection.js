@@ -1,3 +1,4 @@
+/*globals Geometry*/
 /*exported Selection*/
 var Selection = (function() {
   'use strict';
@@ -9,6 +10,8 @@ var Selection = (function() {
     objects: [],
     // Array of selected objects.
     array: [],
+    // Offsets of selected objects.
+    offsets: [],
     // Radius for valid hits.
     radius: 8,
   };
@@ -50,14 +53,45 @@ var Selection = (function() {
   function onMouseDown( event ) {
     mousePosition( event );
     mouse.down = true;
+
+    var radius = selection.radius;
+    var radiusSquared = radius * radius;
+    var object;
+    var distanceSquared;
+    for ( var i = 0, il = selection.objects.length; i < il; i++ ) {
+      object = selection.objects[i];
+
+      distanceSquared = Geometry.distanceSquared(
+        mouse.x, mouse.y,
+        object.x, object.y
+      );
+
+      if ( distanceSquared < radiusSquared ) {
+        selection.array.push( object );
+        selection.offsets.push({
+          x: object.x - mouse.x,
+          y: object.y - mouse.y
+        });
+
+        return;
+      }
+    }
   }
 
   function onMouseMove( event ) {
     mousePosition( event );
+
+    selection.objects.forEach(function( object, index ) {
+      object.x = mouse.x + selection.offsets[ index ].x;
+      object.y = mouse.y + selection.offsets[ index ].y;
+    });
   }
 
   function onMouseUp() {
     mouse.down = false;
+
+    selection.array = [];
+    selection.offsets = [];
   }
 
   return selection;

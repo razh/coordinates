@@ -34,15 +34,18 @@ var Grid = (function() {
   };
 
   Grid.prototype.drawPath = function( ctx ) {
-    var colWidth  = this.width  / this.cols,
-        rowHeight = this.height / this.rows;
+    var cols = this.cols,
+        rows = this.rows;
+
+    var colWidth  = this.width  / cols,
+        rowHeight = this.height / rows;
 
     var vertexCount = 0.5 * this.vertices.length;
 
     var x, y;
     for ( var i = 0; i < vertexCount; i++ ) {
-      x = i % vertexCount;
-      y = Math.floor( i / vertexCount );
+      x = i % cols;
+      y = Math.floor( i / rows );
 
       ctx.rect( x * colWidth, y * rowHeight, colWidth, rowHeight );
     }

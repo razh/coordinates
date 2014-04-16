@@ -24,12 +24,27 @@ var Grid = (function() {
     var colWidth  = this.width  / this.cols,
         rowHeight = this.height / this.rows;
 
-    var i, j;
-    for ( j = 0; j < this.rows; j++ ) {
-      for ( i = 0; i < this.cols; i++ ) {
-        this.vertices.push( colWidth  * i );
-        this.vertices.push( rowHeight * j );
+    var x, y;
+    for ( y = 0; y < this.rows; y++ ) {
+      for ( x = 0; x < this.cols; x++ ) {
+        this.vertices.push( colWidth  * x );
+        this.vertices.push( rowHeight * y );
       }
+    }
+  };
+
+  Grid.prototype.drawPath = function( ctx ) {
+    var colWidth  = this.width  / this.cols,
+        rowHeight = this.height / this.rows;
+
+    var vertexCount = 0.5 * this.vertices.length;
+
+    var x, y;
+    for ( var i = 0; i < vertexCount; i++ ) {
+      x = i % vertexCount;
+      y = Math.floor( i / vertexCount );
+
+      ctx.rect( x * colWidth, y * rowHeight, colWidth, rowHeight );
     }
   };
 

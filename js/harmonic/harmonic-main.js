@@ -68,14 +68,20 @@
 
     // Draw boundary cells.
     ctx.beginPath();
-    drawCellsOfType(1);
+    drawCellsOfType( Harmonic.CellType.BOUNDARY );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.fill();
 
     // Draw exterior cells.
     ctx.beginPath();
-    drawCellsOfType(3);
+    drawCellsOfType( Harmonic.CellType.EXTERIOR );
     ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fill();
+
+    // Draw interior cells.
+    ctx.beginPath();
+    drawCellsOfType( Harmonic.CellType.INTERIOR );
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
     ctx.fill();
 
     // Draw triangle.

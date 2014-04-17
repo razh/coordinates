@@ -173,6 +173,13 @@ var Harmonic = (function() {
     floodFill( cells, cellCount, cellCount - 1, 0, -1, 1 );
     floodFill( cells, cellCount, cellCount - 1, cellCount - 1, -1, -1 );
 
+    // Mark all interior cells.
+    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
+      if ( cells[i].type === CellType.UNTYPED ) {
+        cells[i].type = CellType.INTERIOR;
+      }
+    }
+
     return {
       cells: cells,
       width: 1 / scaleX,
@@ -181,6 +188,8 @@ var Harmonic = (function() {
   }
 
   return {
+    CellType: CellType,
+
     config: config,
     convert2d: convert2d
   };

@@ -14,6 +14,9 @@ var Harmonic = (function() {
     EXTERIOR: 3
   };
 
+  function clamp( value, min, max ) {
+    return Math.min( Math.max( value, min ), max );
+  }
 
   /**
    * Marks all cells which lie on the Bresenham line rasterization as
@@ -23,7 +26,7 @@ var Harmonic = (function() {
    * cell will have world dimensions equal to column width and row height, but
    * local dimensions of 1 by 1.
    */
-  function bresenham( grid, x0, y0, x1, y1 ) {
+  function bresenham( grid, cols, x0, y0, x1, y1 ) {
     var dx = Math.abs( x1 - x0 ),
         dy = Math.abs( y1 - y0 );
 
@@ -35,8 +38,9 @@ var Harmonic = (function() {
 
     var error2;
     while ( true ) {
-      grid[ y0 ][ x0 ] = CellType.BOUNDARY;
-      if ( x0 >= x1 && y0 >= y1 ) {
+      grid[ y0 * cols + x0 ].type = CellType.BOUNDARY;
+
+      if ( x0 === x1 && y0 === y1 ) {
         return;
       }
 
@@ -79,7 +83,7 @@ var Harmonic = (function() {
   }
 
   function convert2d( x, y, vertices ) {
-    var vertexCount = 0.5 * vertices;
+    var vertexCount = 0.5 * vertices.length;
     var aabb = dimensions( vertices );
 
     var cellCount = config.cellCount;
@@ -87,15 +91,13 @@ var Harmonic = (function() {
     var scaleX = cellCount / aabb.width,
         scaleY = cellCount / aabb.height;
 
-    var cells = new Array( cellCount * cellCount );
+    var cells = [];
 
-    var i, j;
-    for ( i = 0; i < cellCount; i++ ) {
-      for ( j = 0; j < cellCount; j++ ) {
-        cells.push({
-          type: CellType.UNTYPED
-        });
-      }
+    var i, il;
+    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
+      cells.push({
+        type: CellType.UNTYPED
+      });
     }
 
     // Determine boundaries.
@@ -103,24 +105,30 @@ var Harmonic = (function() {
         ymin = aabb.y;
 
     var x0, y0, x1, y1;
-    var il;
-    for ( i = 0, il = 0.5 * vertices.length; i < il; i++ ) {
+    for ( i = 0; i < vertexCount; i++ ) {
       x0 = vertices[ 2 * i ];
       y0 = vertices[ 2 * i + 1 ];
       x1 = vertices[ 2 * ( ( i + 1 ) % vertexCount ) ];
       y1 = vertices[ 2 * ( ( i + 1 ) % vertexCount ) + 1 ];
 
       // Normalize line to grid.
-      x0 = ( x0 - xmin ) * scaleX;
-      y0 = ( y0 - ymin ) * scaleY;
-      x1 = ( x1 - xmin ) * scaleX;
-      y1 = ( y1 - ymin ) * scaleY;
+      x0 = Math.floor( clamp( ( x0 - xmin ) * scaleX, 0, cellCount - 1 ) );
+      y0 = Math.floor( clamp( ( y0 - ymin ) * scaleY, 0, cellCount - 1 ) );
+      x1 = Math.floor( clamp( ( x1 - xmin ) * scaleX, 0, cellCount - 1 ) );
+      y1 = Math.floor( clamp( ( y1 - ymin ) * scaleY, 0, cellCount - 1 ) );
 
-      bresenham( cells, x0, y0, x1, y1 );
+      bresenham( cells, cellCount, x0, y0, x1, y1 );
     }
+
+    return {
+      cells: cells,
+      width: 1 / scaleX,
+      height: 1 / scaleY
+    };
   }
 
   return {
+    config: config,
     convert2d: convert2d
   };
 }) ();

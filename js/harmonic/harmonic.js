@@ -25,8 +25,10 @@ var Harmonic = (function() {
    * Vertices are expected to be normalized to grid units. That is, a grid
    * cell will have world dimensions equal to column width and row height, but
    * local dimensions of 1 by 1.
+   *
+   * Assumes a square grid.
    */
-  function bresenham( grid, cols, x0, y0, x1, y1 ) {
+  function bresenham( grid, count, x0, y0, x1, y1 ) {
     var dx = Math.abs( x1 - x0 ),
         dy = Math.abs( y1 - y0 );
 
@@ -38,7 +40,7 @@ var Harmonic = (function() {
 
     var error2;
     while ( true ) {
-      grid[ y0 * cols + x0 ].type = CellType.BOUNDARY;
+      grid[ y0 * count + x0 ].type = CellType.BOUNDARY;
 
       if ( x0 === x1 && y0 === y1 ) {
         return;
@@ -53,6 +55,51 @@ var Harmonic = (function() {
       if ( error2 < dx ) {
         error += dx;
         y0 += sy;
+      }
+    }
+  }
+
+  /**
+   * Flood fill to mark all EXTERIOR cells.
+   *
+   * Assumes a square grid.
+   */
+  function floodFill( grid, count, x, y, dx, dy ) {
+    var xi = x,
+        yi = y;
+
+    var horizontal;
+    while ( true ) {
+      var index = yi * count + xi;
+      if ( grid[ index ].type === CellType.BOUNDARY ) {
+        return;
+      }
+
+      grid[ index ].type = CellType.EXTERIOR;
+
+      // Flood fill horizontally.
+      horizontal = true;
+      while ( horizontal ) {
+        xi += dx;
+        index = yi * count + xi;
+
+        if ( grid[ index ].type === CellType.BOUNDARY ) {
+          horizontal = false;
+          xi = x;
+        } else {
+          grid[ index ].type = CellType.EXTERIOR;
+        }
+
+        if ( xi === 0 || xi === count - 1 ) {
+          horizontal = false;
+          xi = x;
+        }
+      }
+
+      yi += dy;
+
+      if ( yi === 0 || yi === count - 1 ) {
+        return;
       }
     }
   }
@@ -119,6 +166,12 @@ var Harmonic = (function() {
 
       bresenham( cells, cellCount, x0, y0, x1, y1 );
     }
+
+    // Flood fill to determine exterior cells.
+    floodFill( cells, cellCount, 0, 0, 1, 1 );
+    floodFill( cells, cellCount, 0, cellCount - 1, 1, -1 );
+    floodFill( cells, cellCount, cellCount - 1, 0, -1, 1 );
+    floodFill( cells, cellCount, cellCount - 1, cellCount - 1, -1, -1 );
 
     return {
       cells: cells,

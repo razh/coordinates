@@ -8,10 +8,10 @@ var Harmonic = (function() {
   };
 
   var CellType = {
-    UNTYPED: 0,
-    BOUNDARY: 1,
-    INTERIOR: 2,
-    EXTERIOR: 3
+    UNTYPED: 1,
+    BOUNDARY: 2,
+    INTERIOR: 4,
+    EXTERIOR: 8
   };
 
   function clamp( value, min, max ) {
@@ -90,7 +90,7 @@ var Harmonic = (function() {
           grid[ index ].type = CellType.EXTERIOR;
         }
 
-        if ( xi === 0 || xi === count - 1 ) {
+        if ( !dx || xi === 0 || xi === count - 1 ) {
           horizontal = false;
           xi = x;
         }
@@ -98,7 +98,7 @@ var Harmonic = (function() {
 
       yi += dy;
 
-      if ( yi === 0 || yi === count - 1 ) {
+      if ( !dy || yi === 0 || yi === count - 1 ) {
         return;
       }
     }
@@ -172,6 +172,15 @@ var Harmonic = (function() {
     floodFill( cells, cellCount, 0, cellCount - 1, 1, -1 );
     floodFill( cells, cellCount, cellCount - 1, 0, -1, 1 );
     floodFill( cells, cellCount, cellCount - 1, cellCount - 1, -1, -1 );
+
+    //  HACK: Flood fill from edges.
+    for ( i = 0; i < cellCount; i++ ) {
+      floodFill( cells, cellCount, i, 0, 0, 1 );
+      floodFill( cells, cellCount, i, cellCount - 1, 0, -1 );
+      floodFill( cells, cellCount, 0, i, 1, 0 );
+      floodFill( cells, cellCount, cellCount - 1, i, -1, 0 );
+    }
+
 
     // Mark all interior cells.
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {

@@ -108,42 +108,45 @@ var Harmonic = (function() {
     }
   }
 
-  function scanLineFill( grid, count, y, reverse ) {
-    var previous = grid[ !reverse ? (y * count) : (y * count + count - 1)].type;
-    var exterior = 1;
-    var index;
-    var type;
-    var cell;
-    var value;
-    var i;
-    for ( i = 0; i < count; i++ ) {
-      index = y * count + i;
-      if ( reverse ) {
-        index = y * count + ( count - i - 1);
-      }
-      cell = grid[ index ];
-      type = cell.type;
-      value = cell.value;
+  function scanLineFill( grid, count, y ) {
+    var exterior = grid[ y * count ].type === CellType.UNTYPED;
+    var i = 0;
+    var start = 0;
+    var end;
+    var switched = 0;
 
-      exterior ^= value % 2;
-      // if ( exterior &&
-      //      previous !== CellType.BOUNDARY &&
-      //      type === CellType.BOUNDARY ) {
-      //   exterior = false;
-      // } else if ( !exterior &&
-      //             previous !== CellType.BOUNDARY &&
-      //             type === CellType.BOUNDARY ) {
-      // } else if ( exterior &&
-      //             previous === CellType.BOUNDARY &&
-      //             type !== CellType.BOUNDARY ) {
-      //   exterior ^= value % 2;
-      // }
-
-      previous = type;
-      if ( exterior && type !== CellType.BOUNDARY ) {
-        grid[ index ].type = CellType.EXTERIOR;
+    while ( start < count ) {
+      while ( grid[ y * count + start ].type === CellType.BOUNDARY ) {
+        start++;
+        // Flip by number of Bresenham edge crossings.
+        exterior ^= grid[ y * count + start ].value;
       }
+
+      if ( start >= count ) {
+        continue;
+      }
+
+      end = start + 1;
+      // Find next boundary cell or the row end.
+      while ( end < count && grid[ y * count + end ].type !== CellType.BOUNDARY ) {
+        end++;
+      }
+
+      // If no more boundary cells, then we're exterior.
+      if ( end >= count ) {
+        exterior = true;
+      }
+
+      for ( i = start; i < end; i++ ) {
+        grid[ y * count + i ].type = exterior ? CellType.EXTERIOR : CellType.INTERIOR;
+      }
+
+      exterior = !exterior;
+      start = end;
+      switched++;
     }
+
+    console.log( switched );
   }
 
   function dimensions( vertices ) {
@@ -212,7 +215,6 @@ var Harmonic = (function() {
 
     for ( i = 0; i < cellCount; i++ ) {
       scanLineFill( cells, cellCount, i );
-      scanLineFill( cells, cellCount, i, true );
     }
 
     /*
@@ -232,11 +234,11 @@ var Harmonic = (function() {
     */
 
     // Mark all interior cells.
-    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
-      if ( cells[i].type === CellType.UNTYPED ) {
-        cells[i].type = CellType.INTERIOR;
-      }
-    }
+    // for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
+    //   if ( cells[i].type === CellType.UNTYPED ) {
+    //     cells[i].type = CellType.INTERIOR;
+    //   }
+    // }
 
     return {
       cells: cells,

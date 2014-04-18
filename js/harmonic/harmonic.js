@@ -1,3 +1,4 @@
+/*jshint bitwise: false*/
 /*exported Harmonic*/
 var Harmonic = (function() {
   'use strict';
@@ -39,8 +40,11 @@ var Harmonic = (function() {
     var error = dx - dy;
 
     var error2;
+    var cell;
     while ( true ) {
-      grid[ y0 * count + x0 ].type = CellType.BOUNDARY;
+      cell = grid[ y0 * count + x0 ];
+      cell.type = CellType.BOUNDARY;
+      cell.value++;
 
       if ( x0 === x1 && y0 === y1 ) {
         return;
@@ -104,6 +108,44 @@ var Harmonic = (function() {
     }
   }
 
+  function scanLineFill( grid, count, y, reverse ) {
+    var previous = grid[ !reverse ? (y * count) : (y * count + count - 1)].type;
+    var exterior = 1;
+    var index;
+    var type;
+    var cell;
+    var value;
+    var i;
+    for ( i = 0; i < count; i++ ) {
+      index = y * count + i;
+      if ( reverse ) {
+        index = y * count + ( count - i - 1);
+      }
+      cell = grid[ index ];
+      type = cell.type;
+      value = cell.value;
+
+      exterior ^= value % 2;
+      // if ( exterior &&
+      //      previous !== CellType.BOUNDARY &&
+      //      type === CellType.BOUNDARY ) {
+      //   exterior = false;
+      // } else if ( !exterior &&
+      //             previous !== CellType.BOUNDARY &&
+      //             type === CellType.BOUNDARY ) {
+      // } else if ( exterior &&
+      //             previous === CellType.BOUNDARY &&
+      //             type !== CellType.BOUNDARY ) {
+      //   exterior ^= value % 2;
+      // }
+
+      previous = type;
+      if ( exterior && type !== CellType.BOUNDARY ) {
+        grid[ index ].type = CellType.EXTERIOR;
+      }
+    }
+  }
+
   function dimensions( vertices ) {
     var xmin = Number.POSITIVE_INFINITY,
         ymin = Number.POSITIVE_INFINITY,
@@ -143,6 +185,7 @@ var Harmonic = (function() {
     var i, il;
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
       cells.push({
+        value: 0,
         type: CellType.UNTYPED
       });
     }
@@ -167,6 +210,12 @@ var Harmonic = (function() {
       bresenham( cells, cellCount, x0, y0, x1, y1 );
     }
 
+    for ( i = 0; i < cellCount; i++ ) {
+      scanLineFill( cells, cellCount, i );
+      scanLineFill( cells, cellCount, i, true );
+    }
+
+    /*
     // Flood fill to determine exterior cells.
     floodFill( cells, cellCount, 0, 0, 1, 1 );
     floodFill( cells, cellCount, 0, cellCount - 1, 1, -1 );
@@ -180,7 +229,7 @@ var Harmonic = (function() {
       floodFill( cells, cellCount, 0, i, 1, 0 );
       floodFill( cells, cellCount, cellCount - 1, i, -1, 0 );
     }
-
+    */
 
     // Mark all interior cells.
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {

@@ -224,14 +224,38 @@ var Harmonic = (function() {
     floodFill( cells, cellCount, cellCount - 1, 0, -1, 1 );
     floodFill( cells, cellCount, cellCount - 1, cellCount - 1, -1, -1 );
 
-    //  HACK: Flood fill from edges.
-    for ( i = 0; i < cellCount; i++ ) {
-      floodFill( cells, cellCount, i, 0, 0, 1 );
-      floodFill( cells, cellCount, i, cellCount - 1, 0, -1 );
-      floodFill( cells, cellCount, 0, i, 1, 0 );
-      floodFill( cells, cellCount, cellCount - 1, i, -1, 0 );
-    }
     */
+    //  HACK: Flood fill from edges.
+    /**
+     * Starting from each corner, we move clockwise amd flood-fill from
+     * UNTYPED cells.
+     *
+     * We end at cellCount - 1 to avoid re-flood-filling starting corners.
+     */
+    var j;
+    var lastIndex = cellCount - 1;
+    for ( i = 0; i < lastIndex; i++ ) {
+      // Top left to top right.
+      if ( cells[i].type === CellType.UNTYPED ) {
+        floodFill( cells, cellCount, i, 0 );
+      }
+
+      // Top right to bottom right.
+      if ( cells[ i * cellCount + lastIndex ].type === CellType.UNTYPED ) {
+        floodFill( cells, cellCount, lastIndex, i );
+      }
+
+      j = cellCount - i - 1;
+      // Bottom right to bottom left.
+      if ( cells[ lastIndex * cellCount + j ].type === CellType.UNTYPED ) {
+        floodFill( cells, cellCount, j, lastIndex );
+      }
+
+      // Bottom left to top left.
+      if ( cells[ j * cellCount ].type === CellType.UNTYPED ) {
+        floodFill( cells, cellCount, 0, j );
+      }
+    }
 
     // Mark all interior cells.
     // for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {

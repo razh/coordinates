@@ -150,7 +150,7 @@ var Harmonic = (function() {
   }
 
   /**
-   * From:
+   * Adapted from:
    * http://lodev.org/cgtutor/floodfill.html
    */
   function _scanlineFill( grid, width, height, x, y ) {
@@ -158,16 +158,14 @@ var Harmonic = (function() {
       [ x, y ]
     ];
 
-    grid[ y * width + x ].type = CellType.EXTERIOR;
-
     var point;
     var yi;
     var left, right;
     var leftIndex, rightIndex;
     while ( stack.length ) {
       point = stack.pop();
-      x = point.x;
-      y = point.y;
+      x = point[0];
+      y = point[1];
       yi = y;
 
       // Find left extent.
@@ -186,7 +184,7 @@ var Harmonic = (function() {
         leftIndex = yi * width + ( x - 1 );
         if ( !left && x > 0 && grid[ leftIndex ].type === CellType.UNTYPED ) {
           stack.push( [ x - 1, yi ] );
-
+          left = true;
         } else if ( left && x > 0 && grid[ leftIndex ].type !== CellType.UNTYPED ) {
           left = false;
         }

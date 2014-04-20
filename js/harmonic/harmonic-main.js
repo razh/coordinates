@@ -1,4 +1,4 @@
-/*globals Geometry, Grid, Harmonic*/
+/*globals Geometry, Selection, Grid, Harmonic*/
 (function( window, document, undefined ) {
   'use strict';
 
@@ -10,6 +10,10 @@
   canvas.width = 512;
   canvas.height = 512;
 
+  function onMouseMove() {
+    draw( context );
+  }
+
   var polygon = [
     250, 50,
     50, 250,
@@ -19,20 +23,23 @@
     450, 400
   ];
 
-  var grid = new Grid({
-    width: 400,
-    height: 400,
-    cols: 32,
-    rows: 32
-  });
+  var cellCount = 32;
+  Harmonic.config.cellCount = cellCount;
 
-  grid.x = 50;
-  grid.y = 50;
-
-  Harmonic.config.cellCount = 32;
-
+  var aabb, grid;
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+    aabb = Harmonic.dimensions( polygon );
+
+    grid = new Grid({
+      width: aabb.width,
+      height: aabb.height,
+      cols: cellCount,
+      rows: cellCount
+    });
+
+    grid.x = aabb.x;
+    grid.y = aabb.y;
 
     // Draw grid.
     ctx.beginPath();
@@ -42,8 +49,6 @@
     ctx.stroke();
 
     // Calculate Harmonic grid data.
-    var cellCount = Harmonic.config.cellCount;
-
     var harmonicData = Harmonic.convert2d( 0, 0, polygon );
     var colWidth = harmonicData.width,
         rowHeight = harmonicData.height;
@@ -92,8 +97,24 @@
     Geometry.drawPolygon( ctx, polygon );
     ctx.lineWidth = 1;
     ctx.stroke();
+
+    // Draw vertices.
+    ctx.beginPath();
+    Geometry.drawVertices( ctx, polygon, 6 );
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fill();
+
+    // Draw vertex labels.
+    ctx.font = 'italic 16pt Georgia';
+    ctx.fillStyle = '#fff';
+    Geometry.drawVertexLabels( ctx, polygon, 8 );
   }
 
   draw( context );
+  canvas.addEventListener( 'mousemove', onMouseMove );
+
+  // Initialize selection interaction.
+  Selection.setElement( canvas );
+  Selection.addHandlers( polygon );
 
 }) ( window, document );

@@ -242,6 +242,7 @@ var Harmonic = (function() {
 
   return {
     CellType: CellType,
+    dimensions: dimensions,
 
     config: config,
     convert2d: convert2d

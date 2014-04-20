@@ -149,6 +149,62 @@ var Harmonic = (function() {
     console.log( switched );
   }
 
+  /**
+   * From:
+   * http://lodev.org/cgtutor/floodfill.html
+   */
+  function _scanlineFill( grid, width, height, x, y ) {
+    var stack = [
+      [ x, y ]
+    ];
+
+    grid[ y * width + x ].type = CellType.EXTERIOR;
+
+    var point;
+    var yi;
+    var left, right;
+    var leftIndex, rightIndex;
+    while ( stack.length ) {
+      point = stack.pop();
+      x = point.x;
+      y = point.y;
+      yi = y;
+
+      // Find left extent.
+      while ( yi >= 0 && grid[ yi * width + x ].type === CellType.UNTYPED ) {
+        yi--;
+      }
+
+      yi++;
+
+      left = false;
+      right = false;
+      while ( yi < height && grid[ yi * width + x ].type === CellType.UNTYPED ) {
+        grid[ yi * width + x ].type = CellType.EXTERIOR;
+
+        // Left.
+        leftIndex = yi * width + ( x - 1 );
+        if ( !left && x > 0 && grid[ leftIndex ].type === CellType.UNTYPED ) {
+          stack.push( [ x - 1, yi ] );
+
+        } else if ( left && x > 0 && grid[ leftIndex ].type !== CellType.UNTYPED ) {
+          left = false;
+        }
+
+        // Right.
+        rightIndex = yi * width + ( x + 1 );
+        if ( !right && x < width - 1 && grid[ rightIndex ].type === CellType.UNTYPED ) {
+          stack.push( [ x + 1, yi ] );
+          right = true;
+        } else if ( right && x < width - 1 && grid[ rightIndex ].type !== CellType.UNTYPED ) {
+          right = false;
+        }
+
+        yi++;
+      }
+    }
+  }
+
   function dimensions( vertices ) {
     var xmin = Number.POSITIVE_INFINITY,
         ymin = Number.POSITIVE_INFINITY,
@@ -213,9 +269,9 @@ var Harmonic = (function() {
       bresenham( cells, cellCount, x0, y0, x1, y1 );
     }
 
-    for ( i = 0; i < cellCount; i++ ) {
-      scanLineFill( cells, cellCount, i );
-    }
+    // for ( i = 0; i < cellCount; i++ ) {
+    //   scanLineFill( cells, cellCount, i );
+    // }
 
     /*
     // Flood fill to determine exterior cells.
@@ -237,23 +293,23 @@ var Harmonic = (function() {
     for ( i = 0; i < lastIndex; i++ ) {
       // Top left to top right.
       if ( cells[i].type === CellType.UNTYPED ) {
-        floodFill( cells, cellCount, i, 0 );
+        _scanlineFill( cells, cellCount, cellCount, i, 0 );
       }
 
       // Top right to bottom right.
       if ( cells[ i * cellCount + lastIndex ].type === CellType.UNTYPED ) {
-        floodFill( cells, cellCount, lastIndex, i );
+        _scanlineFill( cells, cellCount, cellCount, lastIndex, i );
       }
 
       j = cellCount - i - 1;
       // Bottom right to bottom left.
       if ( cells[ lastIndex * cellCount + j ].type === CellType.UNTYPED ) {
-        floodFill( cells, cellCount, j, lastIndex );
+        _scanlineFill( cells, cellCount, cellCount, j, lastIndex );
       }
 
       // Bottom left to top left.
       if ( cells[ j * cellCount ].type === CellType.UNTYPED ) {
-        floodFill( cells, cellCount, 0, j );
+        _scanlineFill( cells, cellCount, cellCount, 0, j );
       }
     }
 

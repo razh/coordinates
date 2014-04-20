@@ -66,94 +66,10 @@ var Harmonic = (function() {
   /**
    * Flood fill to mark all EXTERIOR cells.
    *
-   * Assumes a square grid.
-   */
-  function floodFill( grid, count, x, y, dx, dy ) {
-    var xi = x,
-        yi = y;
-
-    var horizontal;
-    while ( true ) {
-      var index = yi * count + xi;
-      if ( grid[ index ].type === CellType.BOUNDARY ) {
-        return;
-      }
-
-      grid[ index ].type = CellType.EXTERIOR;
-
-      // Flood fill horizontally.
-      horizontal = true;
-      while ( horizontal ) {
-        xi += dx;
-        index = yi * count + xi;
-
-        if ( grid[ index ].type === CellType.BOUNDARY ) {
-          horizontal = false;
-          xi = x;
-        } else {
-          grid[ index ].type = CellType.EXTERIOR;
-        }
-
-        if ( !dx || xi === 0 || xi === count - 1 ) {
-          horizontal = false;
-          xi = x;
-        }
-      }
-
-      yi += dy;
-
-      if ( !dy || yi === 0 || yi === count - 1 ) {
-        return;
-      }
-    }
-  }
-
-  function scanLineFill( grid, count, y ) {
-    var exterior = grid[ y * count ].type === CellType.UNTYPED;
-    var i = 0;
-    var start = 0;
-    var end;
-    var switched = 0;
-
-    while ( start < count ) {
-      while ( grid[ y * count + start ].type === CellType.BOUNDARY ) {
-        start++;
-        // Flip by number of Bresenham edge crossings.
-        exterior ^= grid[ y * count + start ].value;
-      }
-
-      if ( start >= count ) {
-        continue;
-      }
-
-      end = start + 1;
-      // Find next boundary cell or the row end.
-      while ( end < count && grid[ y * count + end ].type !== CellType.BOUNDARY ) {
-        end++;
-      }
-
-      // If no more boundary cells, then we're exterior.
-      if ( end >= count ) {
-        exterior = true;
-      }
-
-      for ( i = start; i < end; i++ ) {
-        grid[ y * count + i ].type = exterior ? CellType.EXTERIOR : CellType.INTERIOR;
-      }
-
-      exterior = !exterior;
-      start = end;
-      switched++;
-    }
-
-    console.log( switched );
-  }
-
-  /**
    * Adapted from:
    * http://lodev.org/cgtutor/floodfill.html
    */
-  function _scanlineFill( grid, width, height, x, y ) {
+  function scanLineFill( grid, width, height, x, y ) {
     var stack = [
       [ x, y ]
     ];
@@ -168,7 +84,7 @@ var Harmonic = (function() {
       y = point[1];
       yi = y;
 
-      // Find left extent.
+      // Find top extent.
       while ( yi >= 0 && grid[ yi * width + x ].type === CellType.UNTYPED ) {
         yi--;
       }
@@ -177,25 +93,35 @@ var Harmonic = (function() {
 
       left = false;
       right = false;
+      // Fill downwards.
       while ( yi < height && grid[ yi * width + x ].type === CellType.UNTYPED ) {
         grid[ yi * width + x ].type = CellType.EXTERIOR;
 
+        // Check left/right neighbors for empty cells.
         // Left.
-        leftIndex = yi * width + ( x - 1 );
-        if ( !left && x > 0 && grid[ leftIndex ].type === CellType.UNTYPED ) {
-          stack.push( [ x - 1, yi ] );
-          left = true;
-        } else if ( left && x > 0 && grid[ leftIndex ].type !== CellType.UNTYPED ) {
-          left = false;
+        if ( x > 0 ) {
+          leftIndex = yi * width + ( x - 1 );
+          if ( !left && grid[ leftIndex ].type === CellType.UNTYPED ) {
+            // Push segemnt start.
+            stack.push( [ x - 1, yi ] );
+            left = true;
+          } else if ( left && grid[ leftIndex ].type !== CellType.UNTYPED ) {
+            // End segment.
+            left = false;
+          }
         }
 
         // Right.
-        rightIndex = yi * width + ( x + 1 );
-        if ( !right && x < width - 1 && grid[ rightIndex ].type === CellType.UNTYPED ) {
-          stack.push( [ x + 1, yi ] );
-          right = true;
-        } else if ( right && x < width - 1 && grid[ rightIndex ].type !== CellType.UNTYPED ) {
-          right = false;
+        if ( x < width - 1 ) {
+          rightIndex = yi * width + ( x + 1 );
+          if ( !right && grid[ rightIndex ].type === CellType.UNTYPED ) {
+            // Push segemnt start.
+            stack.push( [ x + 1, yi ] );
+            right = true;
+          } else if ( right && grid[ rightIndex ].type !== CellType.UNTYPED ) {
+            // End segment.
+            right = false;
+          }
         }
 
         yi++;
@@ -267,20 +193,9 @@ var Harmonic = (function() {
       bresenham( cells, cellCount, x0, y0, x1, y1 );
     }
 
-    // for ( i = 0; i < cellCount; i++ ) {
-    //   scanLineFill( cells, cellCount, i );
-    // }
-
-    /*
-    // Flood fill to determine exterior cells.
-    floodFill( cells, cellCount, 0, 0, 1, 1 );
-    floodFill( cells, cellCount, 0, cellCount - 1, 1, -1 );
-    floodFill( cells, cellCount, cellCount - 1, 0, -1, 1 );
-    floodFill( cells, cellCount, cellCount - 1, cellCount - 1, -1, -1 );
-
-    */
-    //  HACK: Flood fill from edges.
     /**
+     * Flood fill from edges.
+     *
      * Starting from each corner, we move clockwise amd flood-fill from
      * UNTYPED cells.
      *
@@ -291,32 +206,32 @@ var Harmonic = (function() {
     for ( i = 0; i < lastIndex; i++ ) {
       // Top left to top right.
       if ( cells[i].type === CellType.UNTYPED ) {
-        _scanlineFill( cells, cellCount, cellCount, i, 0 );
+        scanLineFill( cells, cellCount, cellCount, i, 0 );
       }
 
       // Top right to bottom right.
       if ( cells[ i * cellCount + lastIndex ].type === CellType.UNTYPED ) {
-        _scanlineFill( cells, cellCount, cellCount, lastIndex, i );
+        scanLineFill( cells, cellCount, cellCount, lastIndex, i );
       }
 
       j = cellCount - i - 1;
       // Bottom right to bottom left.
       if ( cells[ lastIndex * cellCount + j ].type === CellType.UNTYPED ) {
-        _scanlineFill( cells, cellCount, cellCount, j, lastIndex );
+        scanLineFill( cells, cellCount, cellCount, j, lastIndex );
       }
 
       // Bottom left to top left.
       if ( cells[ j * cellCount ].type === CellType.UNTYPED ) {
-        _scanlineFill( cells, cellCount, cellCount, 0, j );
+        scanLineFill( cells, cellCount, cellCount, 0, j );
       }
     }
 
     // Mark all interior cells.
-    // for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
-    //   if ( cells[i].type === CellType.UNTYPED ) {
-    //     cells[i].type = CellType.INTERIOR;
-    //   }
-    // }
+    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
+      if ( cells[i].type === CellType.UNTYPED ) {
+        cells[i].type = CellType.INTERIOR;
+      }
+    }
 
     return {
       cells: cells,

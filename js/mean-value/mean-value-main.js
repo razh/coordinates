@@ -68,39 +68,45 @@
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#fff';
 
+    // Draw polygon path.
     ctx.beginPath();
     Geometry.drawPolygon( ctx, octSquare );
     Geometry.drawPolygon( ctx, octagon );
     ctx.stroke();
 
+    // Draw vertices.
     ctx.beginPath();
     Geometry.drawVertices( ctx, octSquare, 4 );
     Geometry.drawVertices( ctx, octagon, 4 );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.fill();
 
+    // Draw vertex labels.
     ctx.font = 'italic 16pt Georgia';
     ctx.fillStyle = '#fff';
     Geometry.drawVertexLabels( ctx, octSquare, 8 );
     Geometry.drawVertexLabels( ctx, octagon, 8 );
 
+    // Draw mouse point.
     ctx.beginPath();
     ctx.arc( mouse.x, mouse.y, 4, 0, PI2 );
     ctx.fillStyle = '#3f4';
     ctx.fill();
 
+    // Draw transformed point.
     ctx.beginPath();
     ctx.arc( transform.x, transform.y, 4, 0, PI2 );
     ctx.fillStyle = '#f43';
     ctx.fill();
 
-    // Draw grid.
+    // Draw grid vertices.
     ctx.beginPath();
     var worldVertices = grid.getWorldVertices();
     Geometry.drawVertices( ctx, worldVertices, 2 );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.fill();
 
+    // Draw transformed grid vertices.
     ctx.beginPath();
     var x, y;
     var weights;

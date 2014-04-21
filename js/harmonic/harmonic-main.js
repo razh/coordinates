@@ -31,6 +31,7 @@
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
     aabb = Harmonic.dimensions( polygon );
 
+    // Update grid.
     grid = new Grid({
       width: aabb.width,
       height: aabb.height,

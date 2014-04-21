@@ -129,22 +129,26 @@
     ctx.lineWidth = 1;
     ctx.strokeStyle = '#fff';
 
+    // Draw polygon path.
     ctx.beginPath();
     Geometry.drawPolygon( ctx, tri0 );
     Geometry.drawPolygon( ctx, tri1 );
     ctx.stroke();
 
+    // Draw vertices.
     ctx.beginPath();
     Geometry.drawVertices( ctx, tri0, 4 );
     Geometry.drawVertices( ctx, tri1, 4 );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.fill();
 
+    // Draw mouse point.
     ctx.beginPath();
     ctx.arc( mouse.x, mouse.y, 4, 0, PI2 );
     ctx.fillStyle = '#3f4';
     ctx.fill();
 
+    // Draw transformed point.
     ctx.beginPath();
     ctx.arc( p1.x, p1.y, 4, 0, PI2 );
     ctx.fillStyle = '#f43';
@@ -155,13 +159,14 @@
     Geometry.drawVertexLabels( ctx, tri0, 8 );
     Geometry.drawVertexLabels( ctx, tri1, 8 );
 
-    // Draw grid.
+    // Draw grid vertices.
     ctx.beginPath();
     var worldVertices = grid.getWorldVertices();
     Geometry.drawVertices( ctx, worldVertices, 2 );
     ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.fill();
 
+    // Draw transformed grid vertices.
     ctx.beginPath();
     var x, y;
     var a, b;

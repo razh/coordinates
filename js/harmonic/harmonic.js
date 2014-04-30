@@ -40,11 +40,8 @@ var Harmonic = (function() {
     var error = dx - dy;
 
     var error2;
-    var cell;
     while ( true ) {
-      cell = grid[ y0 * count + x0 ];
-      cell.type = CellType.BOUNDARY;
-      cell.value++;
+      grid[ y0 * count + x0 ].type = CellType.BOUNDARY;
 
       if ( x0 === x1 && y0 === y1 ) {
         return;
@@ -168,8 +165,8 @@ var Harmonic = (function() {
     var i, il;
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
       cells.push({
-        value: 0,
-        type: CellType.UNTYPED
+        type: CellType.UNTYPED,
+        weights: []
       });
     }
 
@@ -227,9 +224,15 @@ var Harmonic = (function() {
     }
 
     // Mark all interior cells.
+    var weights = [];
+    for ( i = 0; i < vertexCount; i++ ) {
+      weights.push(0);
+    }
+
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
       if ( cells[i].type === CellType.UNTYPED ) {
         cells[i].type = CellType.INTERIOR;
+        cells[i].weights = weights.slice();
       }
     }
 

@@ -32,6 +32,24 @@ var Harmonic = (function() {
   }
 
   /**
+   * Find the parameter of the point (x, y) as projected on the line segment
+   * form by (x0, y0) - (x1, y1).
+   */
+  function closestPointOnLineParameter( x, y, x0, y0, x1, y1 ) {
+    var dx = x1 - x0,
+        dy = y1 - y0;
+
+    // Check for line degeneracy.
+    if ( !dx && !dy ) {
+      return null;
+    }
+
+    var lengthSquared = dx * dx + dy * dy;
+
+    return ( ( x - x0 ) * ( x1 - x0 ) + ( y - y0 ) * ( y1 - y0 ) ) / lengthSquared;
+  }
+
+  /**
    * Marks all cells which lie on the Bresenham line rasterization as
    * BOUNDARY cells.
    *

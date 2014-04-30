@@ -15,6 +15,18 @@ var Harmonic = (function() {
     EXTERIOR: 8
   };
 
+  /**
+   * modulo with Euclidean division.
+   * Always the same sign as the divisor (d).
+   * Useful for accessing arrays using negative indices.
+   *
+   * Example:
+   *   modulo( -1, 3 ) => 2
+   */
+  function modulo( n, d ) {
+    return ( ( n % d ) + d  ) % d;
+  }
+
   function clamp( value, min, max ) {
     return Math.min( Math.max( value, min ), max );
   }

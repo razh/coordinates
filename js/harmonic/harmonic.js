@@ -53,13 +53,29 @@ var Harmonic = (function() {
    * Marks all cells which lie on the Bresenham line rasterization as
    * BOUNDARY cells.
    *
+   * Scan-converts the univariate linear B-spline basis function
+   * ("hat function" basis) for cell vertex weights.
+   *   - The basis function is linearly interpolated from 1 at the primary
+   *     vertex to 0 at the previous/next vertices:
+   *
+   *                                o              1
+   *                              /   \
+   *                            /       \
+   *                     -----o           o-----   0
+   *     vertex index:   (i - 1)    i    (i + 1)
+   *
    * Vertices are expected to be normalized to grid units. That is, a grid
    * cell will have world dimensions equal to column width and row height, but
    * local dimensions of 1 by 1.
    *
+   * i0 and i1 are vertex weight indices.
+   *
    * Assumes a square grid.
    */
-  function bresenham( grid, count, x0, y0, x1, y1 ) {
+  function bresenham( grid, count, x0, y0, x1, y1, i0, i1 ) {
+    var x = x0,
+        y = y0;
+
     var dx = Math.abs( x1 - x0 ),
         dy = Math.abs( y1 - y0 );
 
@@ -70,22 +86,29 @@ var Harmonic = (function() {
     var error = dx - dy;
 
     var error2;
+    var cell, parameter;
     while ( true ) {
-      grid[ y0 * count + x0 ].type = CellType.BOUNDARY;
+      cell = grid[ y * count + x ];
+      cell.type = CellType.BOUNDARY;
 
-      if ( x0 === x1 && y0 === y1 ) {
+      // Calculate weight.
+      parameter = closestPointOnLineParameter( x, y, x0, y0, x1, y1 );
+      cell.weights[ i0 ] = 1 - parameter;
+      cell.weights[ i1 ] = parameter;
+
+      if ( x === x1 && y === y1 ) {
         return;
       }
 
       error2 = 2 * error;
       if ( error2 > -dy ) {
         error -= dy;
-        x0 += sx;
+        x += sx;
       }
 
       if ( error2 < dx ) {
         error += dx;
-        y0 += sy;
+        y += sy;
       }
     }
   }
@@ -217,7 +240,7 @@ var Harmonic = (function() {
       x1 = Math.floor( clamp( ( x1 - xmin ) * scaleX, 0, cellCount - 1 ) );
       y1 = Math.floor( clamp( ( y1 - ymin ) * scaleY, 0, cellCount - 1 ) );
 
-      bresenham( cells, cellCount, x0, y0, x1, y1 );
+      bresenham( cells, cellCount, x0, y0, x1, y1, i, ( i + 1 ) % vertexCount );
     }
 
     /**

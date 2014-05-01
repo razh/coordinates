@@ -80,9 +80,9 @@
     }
 
     /**
-     * Draws the weights associated with the vertex at index.
+     * Draws the numeric weights associated with the vertex at index.
      */
-    function drawWeights( index, precision ) {
+    function drawWeightValues( index, precision ) {
       precision = precision || 0;
 
       var x, y;
@@ -98,6 +98,36 @@
         weight = round( weight, precision );
 
         ctx.fillText( weight, grid.x + x * colWidth, grid.y + y * rowHeight );
+      }
+    }
+
+    /**
+     * Draws cell weights in color for the vertex at index. Uses the cell's
+     * weight value as the global alpha.
+     */
+    function drawWeights( index, color ) {
+      ctx.fillStyle = color;
+
+      var x, y;
+      var weight;
+      for ( var i = 0, il = harmonicData.cells.length; i < il; i++ ) {
+        weight = harmonicData.cells[i].weights[ index ];
+        if ( !weight ) {
+          continue;
+        }
+
+        x = i % cellCount;
+        y = Math.floor( i / cellCount );
+        ctx.globalAlpha = weight;
+
+        ctx.fillRect(
+          grid.x + x * colWidth,
+          grid.y + y * rowHeight,
+          colWidth,
+          rowHeight
+        );
+
+        ctx.globalAlpha = 1;
       }
     }
 
@@ -119,10 +149,13 @@
     ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
     ctx.fill();
 
-    // Draw weights.
+    // Draw weights as color.
+    drawWeights( 0, 'rgba(0, 128, 0, 0.5)' );
+
+    // Draw weight values.
     ctx.font = '8pt monospace';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    drawWeights( 0, 2 );
+    drawWeightValues( 0, 2 );
 
     // Draw polygon.
     ctx.beginPath();

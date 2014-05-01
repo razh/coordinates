@@ -4,6 +4,10 @@
 
   var PI2 = 2 * Math.PI;
 
+  function round( value, precision ) {
+    return parseFloat( value.toFixed( precision ) );
+  }
+
   var canvas  = document.getElementById( 'harmonic-canvas' ),
       context = canvas.getContext( '2d' );
 
@@ -75,6 +79,28 @@
       }
     }
 
+    /**
+     * Draws the weights associated with the vertex at index.
+     */
+    function drawWeights( index, precision ) {
+      precision = precision || 0;
+
+      var x, y;
+      var weight;
+      for ( var i = 0, il = harmonicData.cells.length; i < il; i++ ) {
+        weight = harmonicData.cells[i].weights[ index ];
+        if ( weight === void 0 ) {
+          continue;
+        }
+
+        x = i % cellCount;
+        y = Math.floor( i / cellCount );
+        weight = round( weight, precision );
+
+        ctx.fillText( weight, grid.x + x * colWidth, grid.y + y * rowHeight );
+      }
+    }
+
     // Draw boundary cells.
     ctx.beginPath();
     drawCellsOfType( Harmonic.CellType.BOUNDARY );
@@ -92,6 +118,11 @@
     drawCellsOfType( Harmonic.CellType.INTERIOR );
     ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
     ctx.fill();
+
+    // Draw weights.
+    ctx.font = '8pt monospace';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    drawWeights( 0, 2 );
 
     // Draw polygon.
     ctx.beginPath();

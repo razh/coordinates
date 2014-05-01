@@ -155,6 +155,8 @@
     // Draw weight values.
     ctx.font = '8pt monospace';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
     drawWeightValues( 0, 2 );
 
     // Draw polygon.

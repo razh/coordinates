@@ -60,7 +60,7 @@ var Harmonic = (function() {
    *
    * Assumes a square grid.
    */
-  function bresenham( grid, count, x0, y0, x1, y1, i0, i1 ) {
+  function bresenham( grid, count, x0, y0, x1, y1, i0, i1, vertexCount ) {
     var x = x0,
         y = y0;
 
@@ -75,9 +75,17 @@ var Harmonic = (function() {
 
     var error2;
     var cell, parameter;
+    var i;
     while ( true ) {
       cell = grid[ y * count + x ];
       cell.type = CellType.BOUNDARY;
+
+      // Populate boundary cell weights if empty.
+      if ( !cell.weights.length ) {
+        for ( i = 0; i < vertexCount; i++ ) {
+          cell.weights.push(0);
+        }
+      }
 
       // Calculate weight.
       parameter = closestPointOnLineParameter( x, y, x0, y0, x1, y1 );
@@ -228,7 +236,13 @@ var Harmonic = (function() {
       x1 = Math.floor( clamp( ( x1 - xmin ) * scaleX, 0, cellCount - 1 ) );
       y1 = Math.floor( clamp( ( y1 - ymin ) * scaleY, 0, cellCount - 1 ) );
 
-      bresenham( cells, cellCount, x0, y0, x1, y1, i, ( i + 1 ) % vertexCount );
+      // Draw boundary line and initialize weights array of boundary cells.
+      bresenham(
+        cells, cellCount,
+        x0, y0, x1, y1,
+        i, ( i + 1 ) % vertexCount,
+        vertexCount
+      );
     }
 
     /**

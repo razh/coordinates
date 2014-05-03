@@ -175,6 +175,57 @@ var Harmonic = (function() {
     }
   }
 
+  /**
+   * Laplacian smooth.
+   */
+  function smooth( cells, width, vertexCount ) {
+    // Empty temporary array to prevent reading undefined arrays.
+    var empty = [];
+
+    var sum, sumDifference;
+    var meanDifference = Number.POSITIVE_INFINITY;
+    var count = cells.length;
+    var left, right, top, bottom;
+    var cell;
+    var x, y;
+    var i, j;
+    for ( i = 0; i < count; i++ ) {
+      cell = cells[i];
+      cell.previousWeights = cell.weights.slice();
+
+      if ( cell.type !== CellType.INTERIOR ) {
+        continue;
+      }
+
+      x = i % width;
+      y = Math.floor( i / width );
+
+      // Left.
+      left = cells[ y * width + ( x - 1 ) ];
+      left = left ? left.previousWeights : empty;
+      // Right.
+      right = cells[ y * width + ( x + 1 ) ];
+      right = right ? right.previousWeights : empty;
+      // Top.
+      top = cells[ ( y - 1 ) * width + x ];
+      top = top ? top.previousWeights : empty;
+      // Bottom.
+      bottom = cells[ ( y + 1 ) * width + x ];
+      bottom = bottom ? bottom.previousWeights : empty;
+
+      for ( j = 0; j < vertexCount; j++ ) {
+        sum =  left[j]   || 0;
+        sum += bottom[j] || 0;
+        sum += top[j]    || 0;
+        sum += right[j]  || 0;
+        // Normalize.
+        sum *= 0.25;
+
+        cell.weights[j] = sum;
+      }
+    }
+  }
+
   function dimensions( vertices ) {
     var xmin = Number.POSITIVE_INFINITY,
         ymin = Number.POSITIVE_INFINITY,
@@ -215,6 +266,7 @@ var Harmonic = (function() {
     for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
       cells.push({
         type: CellType.UNTYPED,
+        previousWeights: [],
         weights: []
       });
     }
@@ -284,12 +336,17 @@ var Harmonic = (function() {
       weights.push(0);
     }
 
-    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
-      if ( cells[i].type === CellType.UNTYPED ) {
-        cells[i].type = CellType.INTERIOR;
-        cells[i].weights = weights.slice();
+    var cell;
+    for ( i = 0, il = cells.length; i < il; i++ ) {
+      cell = cells[i];
+      if ( cell.type === CellType.UNTYPED ) {
+        cell.type = CellType.INTERIOR;
+        cell.previousWeights = weights.slice();
+        cell.weights = weights.slice();
       }
     }
+
+    smooth( cells, cellCount, vertexCount );
 
     return {
       cells: cells,

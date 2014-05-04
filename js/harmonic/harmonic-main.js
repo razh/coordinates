@@ -177,7 +177,7 @@
     ctx.fill();
 
     // Draw weights as color.
-    drawWeights( 0, 'rgba(0, 255, 0, 1.0)' );
+    drawWeights( 0, 'rgba(0, 255, 0, 0.8)' );
 
     // Draw weight values.
     if ( config.values ) {

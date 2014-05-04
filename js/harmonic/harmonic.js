@@ -194,6 +194,10 @@ var Harmonic = (function() {
       }
     }
 
+    if ( !interiorCount ) {
+      return;
+    }
+
     var sum, sumDifference;
     var meanDifference = Number.POSITIVE_INFINITY;
     var threshold = config.threshold;

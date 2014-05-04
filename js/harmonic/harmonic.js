@@ -29,7 +29,7 @@ var Harmonic = (function() {
 
     // Check for line degeneracy.
     if ( !dx && !dy ) {
-      return null;
+      return 0;
     }
 
     var lengthSquared = dx * dx + dy * dy;

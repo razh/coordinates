@@ -5,7 +5,9 @@ var Harmonic = (function() {
 
   var config = {
     // Cell count on a side.
-    cellCount: Math.pow( 2, 6 )
+    cellCount: Math.pow( 2, 6 ),
+    // Laplacian smoothing termination criterion threshold.
+    threshold: 1e-5
   };
 
   var CellType = {
@@ -182,47 +184,68 @@ var Harmonic = (function() {
     // Empty temporary array to prevent reading undefined arrays.
     var empty = [];
 
+    // Determine the total number of interior cells.
+    var interiorCount = 0;
+    var count = cells.length;
+    var i;
+    for ( i = 0; i < count; i++ ) {
+      if ( cells[i].type === CellType.INTERIOR ) {
+        interiorCount++;
+      }
+    }
+
     var sum, sumDifference;
     var meanDifference = Number.POSITIVE_INFINITY;
-    var count = cells.length;
+    var threshold = config.threshold;
     var left, right, top, bottom;
     var cell;
     var x, y;
-    var i, j;
-    for ( i = 0; i < count; i++ ) {
-      cell = cells[i];
-      cell.previousWeights = cell.weights.slice();
+    var j;
+    // Smooth until the mean difference is less than threshold.
+    while ( meanDifference > threshold ) {
+      sumDifference = 0;
 
-      if ( cell.type !== CellType.INTERIOR ) {
-        continue;
+      // For interior cells, determine 4-connected neighbors and smooth.
+      for ( i = 0; i < count; i++ ) {
+        cell = cells[i];
+        cell.previousWeights = cell.weights.slice();
+
+        if ( cell.type !== CellType.INTERIOR ) {
+          continue;
+        }
+
+        x = i % width;
+        y = Math.floor( i / width );
+
+        // Left.
+        left = cells[ y * width + ( x - 1 ) ];
+        left = left ? left.previousWeights : empty;
+        // Right.
+        right = cells[ y * width + ( x + 1 ) ];
+        right = right ? right.previousWeights : empty;
+        // Top.
+        top = cells[ ( y - 1 ) * width + x ];
+        top = top ? top.previousWeights : empty;
+        // Bottom.
+        bottom = cells[ ( y + 1 ) * width + x ];
+        bottom = bottom ? bottom.previousWeights : empty;
+
+        // Smooth all weights.
+        for ( j = 0; j < vertexCount; j++ ) {
+          sum =  left[j]   || 0;
+          sum += bottom[j] || 0;
+          sum += top[j]    || 0;
+          sum += right[j]  || 0;
+          // Normalize.
+          sum *= 0.25;
+
+          cell.weights[j] = sum;
+
+          sumDifference += Math.abs( sum - cell.previousWeights[j] );
+        }
       }
 
-      x = i % width;
-      y = Math.floor( i / width );
-
-      // Left.
-      left = cells[ y * width + ( x - 1 ) ];
-      left = left ? left.previousWeights : empty;
-      // Right.
-      right = cells[ y * width + ( x + 1 ) ];
-      right = right ? right.previousWeights : empty;
-      // Top.
-      top = cells[ ( y - 1 ) * width + x ];
-      top = top ? top.previousWeights : empty;
-      // Bottom.
-      bottom = cells[ ( y + 1 ) * width + x ];
-      bottom = bottom ? bottom.previousWeights : empty;
-
-      for ( j = 0; j < vertexCount; j++ ) {
-        sum =  left[j]   || 0;
-        sum += bottom[j] || 0;
-        sum += top[j]    || 0;
-        sum += right[j]  || 0;
-        // Normalize.
-        sum *= 0.25;
-
-        cell.weights[j] = sum;
-      }
+      meanDifference = sumDifference / ( interiorCount * vertexCount );
     }
   }
 

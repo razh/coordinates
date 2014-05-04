@@ -14,11 +14,17 @@
 
   var inputs = {
     values: document.getElementById( 'draw-values' ),
+    cellCount: document.getElementById( 'cell-count' ),
     threshold: document.getElementById( 'threshold' )
   };
 
   inputs.values.addEventListener( 'change', function() {
     config.values = inputs.values.checked;
+    draw( context );
+  });
+
+  inputs.cellCount.addEventListener( 'input', function() {
+    Harmonic.config.cellCount = inputs.cellCount.value;
     draw( context );
   });
 
@@ -46,18 +52,18 @@
     450, 400
   ];
 
-  var cellCount = 32;
-  Harmonic.config.cellCount = cellCount;
+  Harmonic.config.cellCount = 32;
   // Lower threshold to allow for realtime rendering.
   Harmonic.config.threshold = 1e-3;
 
-  var aabb, grid;
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-    aabb = Harmonic.dimensions( polygon );
+
+    var cellCount = Harmonic.config.cellCount;
+    var aabb = Harmonic.dimensions( polygon );
 
     // Update grid.
-    grid = new Grid({
+    var grid = new Grid({
       width: aabb.width,
       height: aabb.height,
       cols: cellCount,

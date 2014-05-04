@@ -14,7 +14,7 @@
 
   var inputs = {
     values: document.getElementById( 'draw-values' ),
-    cellCount: document.getElementById( 'cell-count' ),
+    resolution: document.getElementById( 'resolution' ),
     threshold: document.getElementById( 'threshold' )
   };
 
@@ -23,8 +23,8 @@
     draw( context );
   });
 
-  inputs.cellCount.addEventListener( 'input', function() {
-    Harmonic.config.cellCount = inputs.cellCount.value;
+  inputs.resolution.addEventListener( 'input', function() {
+    Harmonic.config.resolution = inputs.resolution.value;
     draw( context );
   });
 
@@ -52,22 +52,22 @@
     450, 400
   ];
 
-  Harmonic.config.cellCount = 32;
+  Harmonic.config.resolution = 32;
   // Lower threshold to allow for realtime rendering.
   Harmonic.config.threshold = 1e-3;
 
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 
-    var cellCount = Harmonic.config.cellCount;
+    var resolution = Harmonic.config.resolution;
     var aabb = Harmonic.dimensions( polygon );
 
     // Update grid.
     var grid = new Grid({
       width: aabb.width,
       height: aabb.height,
-      cols: cellCount,
-      rows: cellCount
+      cols: resolution,
+      rows: resolution
     });
 
     grid.x = aabb.x;
@@ -94,8 +94,8 @@
           continue;
         }
 
-        x = i % cellCount;
-        y = Math.floor( i / cellCount );
+        x = i % resolution;
+        y = Math.floor( i / resolution );
 
         ctx.rect(
           grid.x + x * colWidth,
@@ -120,8 +120,8 @@
           continue;
         }
 
-        x = i % cellCount;
-        y = Math.floor( i / cellCount );
+        x = i % resolution;
+        y = Math.floor( i / resolution );
         weight = round( weight, precision );
 
         ctx.fillText( weight, grid.x + x * colWidth, grid.y + y * rowHeight );
@@ -143,8 +143,8 @@
           continue;
         }
 
-        x = i % cellCount;
-        y = Math.floor( i / cellCount );
+        x = i % resolution;
+        y = Math.floor( i / resolution );
         ctx.globalAlpha = weight;
 
         ctx.fillRect(

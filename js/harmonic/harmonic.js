@@ -5,7 +5,7 @@ var Harmonic = (function() {
 
   var config = {
     // Cell count on a side.
-    cellCount: Math.pow( 2, 6 ),
+    resolution: Math.pow( 2, 6 ),
     // Laplacian smoothing termination criterion threshold.
     threshold: 1e-5
   };
@@ -62,7 +62,7 @@ var Harmonic = (function() {
    *
    * Assumes a square grid.
    */
-  function bresenham( grid, count, x0, y0, x1, y1, i0, i1, vertexCount ) {
+  function bresenham( grid, width, x0, y0, x1, y1, i0, i1, vertexCount ) {
     var x = x0,
         y = y0;
 
@@ -79,9 +79,12 @@ var Harmonic = (function() {
     var cell, parameter;
     var i;
     while ( true ) {
-      cell = grid[ y * count + x ];
-      cell.type = CellType.BOUNDARY;
+      cell = grid[ y * width + x ];
+      if ( !cell ) {
+        break;
+      }
 
+      cell.type = CellType.BOUNDARY;
       // Populate boundary cell weights if empty.
       if ( !cell.weights.length ) {
         for ( i = 0; i < vertexCount; i++ ) {
@@ -282,15 +285,15 @@ var Harmonic = (function() {
     var vertexCount = 0.5 * vertices.length;
     var aabb = dimensions( vertices );
 
-    var cellCount = config.cellCount;
+    var resolution = config.resolution;
 
-    var scaleX = cellCount / aabb.width,
-        scaleY = cellCount / aabb.height;
+    var scaleX = resolution / aabb.width,
+        scaleY = resolution / aabb.height;
 
     var cells = [];
 
     var i, il;
-    for ( i = 0, il = cellCount * cellCount; i < il; i++ ) {
+    for ( i = 0, il = resolution * resolution; i < il; i++ ) {
       cells.push({
         type: CellType.UNTYPED,
         previousWeights: [],
@@ -310,14 +313,14 @@ var Harmonic = (function() {
       y1 = vertices[ 2 * ( ( i + 1 ) % vertexCount ) + 1 ];
 
       // Normalize line to grid.
-      x0 = Math.floor( clamp( ( x0 - xmin ) * scaleX, 0, cellCount - 1 ) );
-      y0 = Math.floor( clamp( ( y0 - ymin ) * scaleY, 0, cellCount - 1 ) );
-      x1 = Math.floor( clamp( ( x1 - xmin ) * scaleX, 0, cellCount - 1 ) );
-      y1 = Math.floor( clamp( ( y1 - ymin ) * scaleY, 0, cellCount - 1 ) );
+      x0 = Math.floor( clamp( ( x0 - xmin ) * scaleX, 0, resolution - 1 ) );
+      y0 = Math.floor( clamp( ( y0 - ymin ) * scaleY, 0, resolution - 1 ) );
+      x1 = Math.floor( clamp( ( x1 - xmin ) * scaleX, 0, resolution - 1 ) );
+      y1 = Math.floor( clamp( ( y1 - ymin ) * scaleY, 0, resolution - 1 ) );
 
       // Draw boundary line and initialize weights array of boundary cells.
       bresenham(
-        cells, cellCount,
+        cells, resolution,
         x0, y0, x1, y1,
         i, ( i + 1 ) % vertexCount,
         vertexCount
@@ -330,30 +333,30 @@ var Harmonic = (function() {
      * Starting from each corner, we move clockwise amd flood-fill from
      * UNTYPED cells.
      *
-     * We end at cellCount - 1 to avoid re-flood-filling starting corners.
+     * We end at resolution - 1 to avoid re-flood-filling starting corners.
      */
     var j;
-    var lastIndex = cellCount - 1;
+    var lastIndex = resolution - 1;
     for ( i = 0; i < lastIndex; i++ ) {
       // Top left to top right.
       if ( cells[i].type === CellType.UNTYPED ) {
-        scanLineFill( cells, cellCount, cellCount, i, 0 );
+        scanLineFill( cells, resolution, resolution, i, 0 );
       }
 
       // Top right to bottom right.
-      if ( cells[ i * cellCount + lastIndex ].type === CellType.UNTYPED ) {
-        scanLineFill( cells, cellCount, cellCount, lastIndex, i );
+      if ( cells[ i * resolution + lastIndex ].type === CellType.UNTYPED ) {
+        scanLineFill( cells, resolution, resolution, lastIndex, i );
       }
 
-      j = cellCount - i - 1;
+      j = resolution - i - 1;
       // Bottom right to bottom left.
-      if ( cells[ lastIndex * cellCount + j ].type === CellType.UNTYPED ) {
-        scanLineFill( cells, cellCount, cellCount, j, lastIndex );
+      if ( cells[ lastIndex * resolution + j ].type === CellType.UNTYPED ) {
+        scanLineFill( cells, resolution, resolution, j, lastIndex );
       }
 
       // Bottom left to top left.
-      if ( cells[ j * cellCount ].type === CellType.UNTYPED ) {
-        scanLineFill( cells, cellCount, cellCount, 0, j );
+      if ( cells[ j * resolution ].type === CellType.UNTYPED ) {
+        scanLineFill( cells, resolution, resolution, 0, j );
       }
     }
 
@@ -373,7 +376,7 @@ var Harmonic = (function() {
       }
     }
 
-    smooth( cells, cellCount, vertexCount );
+    smooth( cells, resolution, vertexCount );
 
     return {
       cells: cells,

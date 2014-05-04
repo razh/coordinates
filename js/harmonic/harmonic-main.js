@@ -8,6 +8,25 @@
     return parseFloat( value.toFixed( precision ) );
   }
 
+  var config = {
+    values: false
+  };
+
+  var inputs = {
+    values: document.getElementById( 'draw-values' ),
+    threshold: document.getElementById( 'threshold' )
+  };
+
+  inputs.values.addEventListener( 'change', function() {
+    config.values = inputs.values.checked;
+    draw( context );
+  });
+
+  inputs.threshold.addEventListener( 'input', function() {
+    Harmonic.config.threshold = Math.pow( 10, inputs.threshold.value );
+    draw( context );
+  });
+
   var canvas  = document.getElementById( 'harmonic-canvas' ),
       context = canvas.getContext( '2d' );
 
@@ -29,6 +48,8 @@
 
   var cellCount = 32;
   Harmonic.config.cellCount = cellCount;
+  // Lower threshold to allow for realtime rendering.
+  Harmonic.config.threshold = 1e-3;
 
   var aabb, grid;
   function draw( ctx ) {
@@ -146,18 +167,26 @@
     // Draw interior cells.
     ctx.beginPath();
     drawCellsOfType( Harmonic.CellType.INTERIOR );
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    ctx.fillStyle = 'rgba(0, 0, 64, 0.5)';
     ctx.fill();
 
     // Draw weights as color.
-    drawWeights( 0, 'rgba(0, 128, 0, 0.5)' );
+    drawWeights( 0, 'rgba(0, 255, 0, 1.0)' );
 
     // Draw weight values.
-    ctx.font = '8pt monospace';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    drawWeightValues( 0, 2 );
+    if ( config.values ) {
+      ctx.font = '8pt monospace';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+      ctx.shadowBlur = 2;
+
+      drawWeightValues( 0, 2 );
+
+      ctx.shadowBlur = 0;
+    }
 
     // Draw polygon.
     ctx.beginPath();

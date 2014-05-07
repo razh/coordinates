@@ -9,17 +9,24 @@
   }
 
   var config = {
-    values: false
+    values: false,
+    vertexIndex: 0
   };
 
   var inputs = {
     values: document.getElementById( 'draw-values' ),
+    vertexIndex: document.getElementById( 'vertex-index' ),
     resolution: document.getElementById( 'resolution' ),
     threshold: document.getElementById( 'threshold' )
   };
 
   inputs.values.addEventListener( 'change', function() {
     config.values = inputs.values.checked;
+    draw( context );
+  });
+
+  inputs.vertexIndex.addEventListener( 'input', function() {
+    config.vertexIndex = inputs.vertexIndex.value;
     draw( context );
   });
 
@@ -51,6 +58,8 @@
     250, 200,
     450, 400
   ];
+
+  inputs.vertexIndex.max = Math.floor( 0.5 * polygon.length ) - 1;
 
   Harmonic.config.resolution = 32;
   // Lower threshold to allow for realtime rendering.
@@ -177,7 +186,7 @@
     ctx.fill();
 
     // Draw weights as color.
-    drawWeights( 0, 'rgba(0, 255, 0, 0.8)' );
+    drawWeights( config.vertexIndex, 'rgba(0, 255, 0, 0.8)' );
 
     // Draw weight values.
     if ( config.values ) {
@@ -189,7 +198,7 @@
       ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
       ctx.shadowBlur = 2;
 
-      drawWeightValues( 0, 2 );
+      drawWeightValues( config.vertexIndex, 2 );
 
       ctx.shadowBlur = 0;
     }

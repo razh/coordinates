@@ -380,8 +380,16 @@ var Harmonic = (function() {
 
     return {
       cells: cells,
+      aabb: aabb,
       width: 1 / scaleX,
       height: 1 / scaleY
+    };
+  }
+
+  function interpolate2d( x, y ) {
+    return {
+      x: x,
+      y: y
     };
   }
 
@@ -390,6 +398,7 @@ var Harmonic = (function() {
     dimensions: dimensions,
 
     config: config,
-    convert2d: convert2d
+    convert2d: convert2d,
+    interpolate2d: interpolate2d
   };
 }) ();

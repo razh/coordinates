@@ -46,7 +46,21 @@
   canvas.width = 512;
   canvas.height = 512;
 
-  function onMouseMove() {
+  var mouse = {
+    x: 0,
+    y: 0
+  };
+
+  // Transformed point.
+  var transform = {
+    x: 0,
+    y: 0
+  };
+
+  function onMouseMove( event ) {
+    mouse.x = event.pageX - canvas.offsetLeft;
+    mouse.y = event.pageY - canvas.offsetTop;
+
     draw( context );
   }
 
@@ -71,26 +85,27 @@
     var resolution = Harmonic.config.resolution;
     var aabb = Harmonic.dimensions( polygon );
 
-    // Update grid.
-    var grid = new Grid({
+    // Update harmonicGrid.
+    var harmonicGrid = new Grid({
       width: aabb.width,
       height: aabb.height,
       cols: resolution,
       rows: resolution
     });
 
-    grid.x = aabb.x;
-    grid.y = aabb.y;
+    harmonicGrid.x = aabb.x;
+    harmonicGrid.y = aabb.y;
 
-    // Draw grid.
+    // Draw harmonicGrid.
     ctx.beginPath();
-    grid.draw( ctx );
+    harmonicGrid.draw( ctx );
     ctx.lineWidth = 0.25;
     ctx.strokeStyle = '#fff';
     ctx.stroke();
 
     // Calculate Harmonic grid data.
     var harmonicData = Harmonic.convert2d( 0, 0, polygon );
+    var aabb = harmonicData.aabb;
     var colWidth = harmonicData.width,
         rowHeight = harmonicData.height;
 
@@ -107,8 +122,8 @@
         y = Math.floor( i / resolution );
 
         ctx.rect(
-          grid.x + x * colWidth,
-          grid.y + y * rowHeight,
+          harmonicGrid.x + x * colWidth,
+          harmonicGrid.y + y * rowHeight,
           colWidth,
           rowHeight
         );
@@ -133,7 +148,11 @@
         y = Math.floor( i / resolution );
         weight = round( weight, precision );
 
-        ctx.fillText( weight, grid.x + x * colWidth, grid.y + y * rowHeight );
+        ctx.fillText(
+          weight,
+          harmonicGrid.x + x * colWidth,
+          harmonicGrid.y + y * rowHeight
+        );
       }
     }
 
@@ -157,8 +176,8 @@
         ctx.globalAlpha = weight;
 
         ctx.fillRect(
-          grid.x + x * colWidth,
-          grid.y + y * rowHeight,
+          harmonicGrid.x + x * colWidth,
+          harmonicGrid.y + y * rowHeight,
           colWidth,
           rowHeight
         );
@@ -219,6 +238,20 @@
     ctx.font = 'italic 16pt Georgia';
     ctx.fillStyle = '#fff';
     Geometry.drawVertexLabels( ctx, polygon, 8 );
+
+    transform = Harmonic.interpolate2d( mouse.x - aabb.x, mouse.y - aabb.y, polygon, harmonicData.cells, resolution, colWidth, rowHeight );
+
+    // Draw mouse point.
+    ctx.beginPath();
+    ctx.arc( mouse.x, mouse.y, 4, 0, PI2 );
+    ctx.fillStyle = '#3f4';
+    ctx.fill();
+
+    // Draw transformed point.
+    ctx.beginPath();
+    ctx.arc( transform.x, transform.y, 4, 0, PI2 );
+    ctx.fillStyle = '#f43';
+    ctx.fill();
   }
 
   draw( context );

@@ -83,7 +83,13 @@
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 
     var resolution = Harmonic.config.resolution;
-    var aabb = Harmonic.dimensions( polygon );
+
+    // Calculate Harmonic grid data.
+    var harmonicData = Harmonic.convert2d( polygon );
+
+    var aabb = harmonicData.aabb,
+        cellWidth = harmonicData.width,
+        cellHeight = harmonicData.height;
 
     // Update harmonicGrid.
     var harmonicGrid = new Grid({
@@ -103,14 +109,6 @@
     ctx.strokeStyle = '#fff';
     ctx.stroke();
 
-    // Calculate Harmonic grid data.
-    var harmonicData = Harmonic.convert2d( 0, 0, polygon );
-    var aabb = harmonicData.aabb;
-    var colWidth = harmonicData.width,
-        rowHeight = harmonicData.height;
-
-    ctx.beginPath();
-
     function drawCellsOfType( n ) {
       var x, y;
       for ( var i = 0, il = harmonicData.cells.length; i < il; i++ ) {
@@ -122,10 +120,10 @@
         y = Math.floor( i / resolution );
 
         ctx.rect(
-          harmonicGrid.x + x * colWidth,
-          harmonicGrid.y + y * rowHeight,
-          colWidth,
-          rowHeight
+          harmonicGrid.x + x * cellWidth,
+          harmonicGrid.y + y * cellHeight,
+          cellWidth,
+          cellHeight
         );
       }
     }
@@ -150,8 +148,8 @@
 
         ctx.fillText(
           weight,
-          harmonicGrid.x + x * colWidth,
-          harmonicGrid.y + y * rowHeight
+          harmonicGrid.x + x * cellWidth,
+          harmonicGrid.y + y * cellHeight
         );
       }
     }
@@ -176,10 +174,10 @@
         ctx.globalAlpha = weight;
 
         ctx.fillRect(
-          harmonicGrid.x + x * colWidth,
-          harmonicGrid.y + y * rowHeight,
-          colWidth,
-          rowHeight
+          harmonicGrid.x + x * cellWidth,
+          harmonicGrid.y + y * cellHeight,
+          cellWidth,
+          cellHeight
         );
 
         ctx.globalAlpha = 1;
@@ -239,7 +237,7 @@
     ctx.fillStyle = '#fff';
     Geometry.drawVertexLabels( ctx, polygon, 8 );
 
-    transform = Harmonic.interpolate2d( mouse.x - aabb.x, mouse.y - aabb.y, polygon, harmonicData.cells, resolution, colWidth, rowHeight );
+    transform = Harmonic.interpolate2d( mouse.x - aabb.x, mouse.y - aabb.y, polygon, harmonicData.cells, resolution, cellWidth, cellHeight );
 
     // Draw mouse point.
     ctx.beginPath();

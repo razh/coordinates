@@ -281,7 +281,7 @@ var Harmonic = (function() {
     };
   }
 
-  function convert2d( x, y, vertices ) {
+  function convert2d( vertices ) {
     var vertexCount = 0.5 * vertices.length;
     var aabb = dimensions( vertices );
 

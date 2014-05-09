@@ -32,11 +32,13 @@
 
   inputs.resolution.addEventListener( 'input', function() {
     Harmonic.config.resolution = inputs.resolution.value;
+    update();
     draw( context );
   });
 
   inputs.threshold.addEventListener( 'input', function() {
     Harmonic.config.threshold = Math.pow( 10, inputs.threshold.value );
+    update();
     draw( context );
   });
 
@@ -73,19 +75,47 @@
     450, 400
   ];
 
+  var previousPolygon = polygon.slice();
+
+  function isDirty() {
+    if ( polygon.length !== previousPolygon.length ) {
+      return true;
+    }
+
+    for ( var i = 0, il = polygon.length; i < il; i++ ) {
+      if ( polygon[i] !== previousPolygon[i] ) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   inputs.vertexIndex.max = Math.floor( 0.5 * polygon.length ) - 1;
 
   Harmonic.config.resolution = 32;
   // Lower threshold to allow for realtime rendering.
   Harmonic.config.threshold = 1e-3;
 
+
+  var harmonicData;
+
+  // Recalculate when polygon or other calculation variables change.
+  function update() {
+    // Calculate Harmonic grid data.
+    harmonicData = Harmonic.convert2d( polygon );
+  }
+
   function draw( ctx ) {
     ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
 
-    var resolution = Harmonic.config.resolution;
+    // Update weights if polygon vertices are different.
+    if ( isDirty() ) {
+      update();
+      previousPolygon = polygon.slice();
+    }
 
-    // Calculate Harmonic grid data.
-    var harmonicData = Harmonic.convert2d( polygon );
+    var resolution = Harmonic.config.resolution;
 
     var aabb = harmonicData.aabb,
         cellWidth = harmonicData.width,
@@ -252,6 +282,7 @@
     ctx.fill();
   }
 
+  update();
   draw( context );
   canvas.addEventListener( 'mousemove', onMouseMove );
 

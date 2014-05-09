@@ -386,10 +386,12 @@ var Harmonic = (function() {
     };
   }
 
-  function interpolate2d( x, y ) {
+  function interpolate2d( x, y, vertices ) {
+    var aabb = dimensions( vertices );
+
     return {
-      x: x,
-      y: y
+      x: x + aabb.x,
+      y: y + aabb.y
     };
   }
 

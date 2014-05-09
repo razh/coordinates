@@ -386,12 +386,34 @@ var Harmonic = (function() {
     };
   }
 
-  function interpolate2d( x, y, vertices ) {
-    var aabb = dimensions( vertices );
+  /**
+   * The resulting interpolated point is undefined outside of the vertex cage.
+   */
+  function interpolate2d( x, y, vertices, cells, resolution, width, height ) {
+    var xIndex = Math.floor( x / width ),
+        yIndex = Math.floor( y / height );
+
+    var cell = cells[ yIndex * resolution + xIndex ];
+    if ( !cell ) {
+      return;
+    }
+
+    var vertexCount = 0.5 * vertices.length;
+    var weights = cell.weights;
+    if ( vertexCount > weights.length ) {
+      return;
+    }
+
+    x = y = 0;
+
+    for ( var i = 0; i < vertexCount; i++ ) {
+      x += weights[i] * vertices[ 2 * i ];
+      y += weights[i] * vertices[ 2 * i + 1 ];
+    }
 
     return {
-      x: x + aabb.x,
-      y: y + aabb.y
+      x: x,
+      y: y
     };
   }
 

@@ -276,10 +276,12 @@
     ctx.fill();
 
     // Draw transformed point.
-    ctx.beginPath();
-    ctx.arc( transform.x, transform.y, 4, 0, PI2 );
-    ctx.fillStyle = '#f43';
-    ctx.fill();
+    if ( transform ) {
+      ctx.beginPath();
+      ctx.arc( transform.x, transform.y, 4, 0, PI2 );
+      ctx.fillStyle = '#f43';
+      ctx.fill();
+    }
   }
 
   update();
